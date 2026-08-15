@@ -16,12 +16,12 @@ export function PageHeader({
 }) {
   return (
     <div className="border-b border-line bg-paper-raised">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 md:px-6">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-3 px-4 py-8 md:px-8">
         {breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             {eyebrow && (
-              <p className="text-xs font-semibold uppercase tracking-wide text-brass">{eyebrow}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-accent">{eyebrow}</p>
             )}
             <h1 className="font-display text-3xl font-semibold uppercase tracking-tight text-ink md:text-4xl">
               {title}

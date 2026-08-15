@@ -22,7 +22,7 @@ export default async function ManufacturersPage() {
         breadcrumbs={[{ label: "Início", href: "/" }, { label: "Marcas" }]}
       />
 
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
         {manufacturers.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {manufacturers.map((manufacturer) => (

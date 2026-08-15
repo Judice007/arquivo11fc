@@ -1,44 +1,31 @@
-import Link from "next/link";
-
+import { HeaderSearch } from "@/components/header-search";
 import { Logo } from "@/components/logo";
 import { MobileNav } from "@/components/mobile-nav";
-import { SearchBar } from "@/components/search-bar";
-
-const NAV_LINKS = [
-  { href: "/clubes", label: "Clubes" },
-  { href: "/selecoes", label: "Seleções" },
-  { href: "/temporadas", label: "Temporadas" },
-  { href: "/marcas", label: "Marcas" },
-  { href: "/explorar", label: "Explorar" },
-];
+import { NavLink } from "@/components/nav-link";
+import { NAV_LINKS } from "@/lib/nav-links";
 
 export function Header() {
   return (
-    <header className="relative border-b border-line bg-paper-raised">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3 md:px-6">
-        <div className="flex flex-1 items-center gap-6">
-          <Logo />
-          <nav className="hidden md:block">
-            <ul className="flex items-center gap-5">
-              {NAV_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm font-medium text-ink-muted transition-colors hover:text-accent"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
+    <header className="sticky top-0 z-30 border-b border-line bg-paper-raised">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-4 md:px-8">
+        <Logo />
 
-        <div className="order-3 w-full md:order-none md:w-64">
-          <SearchBar />
-        </div>
+        <nav className="hidden md:block">
+          <ul className="flex items-center gap-8">
+            {NAV_LINKS.map((link) => (
+              <li key={link.href}>
+                <NavLink href={link.href} label={link.label} />
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-        <MobileNav />
+        <div className="flex items-center gap-2">
+          <div className="hidden md:block">
+            <HeaderSearch />
+          </div>
+          <MobileNav />
+        </div>
       </div>
     </header>
   );

@@ -50,7 +50,7 @@ export default async function NationalTeamPage({
         title={team.name}
       />
 
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
         <div className="flex items-center gap-6 rounded-md border border-line bg-paper-raised p-6">
           <div className="flex h-24 w-24 shrink-0 items-center justify-center">
             {team.crestUrl ? (

@@ -37,7 +37,7 @@ export default async function ClubesPage({
         breadcrumbs={[{ label: "Início", href: "/" }, { label: "Clubes" }]}
       />
 
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
         <form method="get" className="flex flex-wrap items-end gap-3 rounded-md border border-line bg-paper-raised p-4">
           <Field label="Continente">
             <select name="continente" defaultValue={continent ?? ""} className="field-select">
@@ -78,10 +78,7 @@ export default async function ClubesPage({
             </select>
           </Field>
 
-          <button
-            type="submit"
-            className="rounded-md bg-ink px-5 py-2 text-sm font-semibold text-paper transition-colors hover:bg-accent-strong"
-          >
+          <button type="submit" className="btn-primary">
             Filtrar
           </button>
         </form>

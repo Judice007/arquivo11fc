@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
+import { DecadeCard } from "@/components/decade-card";
 import { EmptyState } from "@/components/empty-state";
 import { ManufacturerCard } from "@/components/manufacturer-card";
 import { PageHeader } from "@/components/page-header";
@@ -32,19 +32,13 @@ export default async function ExplorePage() {
         breadcrumbs={[{ label: "Início", href: "/" }, { label: "Explorar" }]}
       />
 
-      <div className="mx-auto flex max-w-6xl flex-col gap-section px-4 py-8 md:px-6">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-section px-4 py-8 md:px-8">
         <section>
           <SectionHeader title="Por década" />
           {decades.length > 0 ? (
             <div className="mt-6 flex flex-wrap gap-3">
               {decades.map((decade) => (
-                <Link
-                  key={decade}
-                  href={`/temporadas/${decade.slice(0, 4)}`}
-                  className="min-w-[7rem] flex-1 rounded-md border border-line bg-paper-raised px-6 py-6 text-center font-display text-2xl font-semibold text-ink shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:text-accent hover:shadow-card-hover"
-                >
-                  {decade}
-                </Link>
+                <DecadeCard key={decade} decadeLabel={decade} href={`/temporadas/${decade.slice(0, 4)}`} />
               ))}
             </div>
           ) : (
@@ -69,10 +63,13 @@ export default async function ExplorePage() {
           )}
         </section>
 
-        <section className="flex flex-col items-center gap-4 rounded-lg border border-line bg-accent-soft px-6 py-12 text-center">
-          <h2 className="font-display text-2xl font-semibold uppercase tracking-tight text-ink">
-            Descubra uma camisa
-          </h2>
+        <section className="flex flex-col items-center gap-5 rounded-lg border border-line bg-paper-raised px-6 py-10 text-center md:flex-row md:justify-between md:text-left">
+          <div>
+            <h2 className="font-display text-lg font-semibold uppercase tracking-wide text-ink">
+              Descubra uma camisa
+            </h2>
+            <p className="mt-1 text-sm text-ink-muted">Deixe a sorte escolher por você.</p>
+          </div>
           <RandomKitButton />
         </section>
       </div>

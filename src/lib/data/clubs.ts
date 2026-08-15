@@ -67,7 +67,11 @@ export function getClubKits(clubId: string, type?: string) {
       clubId,
       ...(type && isKitType(type) ? { type } : {}),
     },
-    include: { manufacturer: true, club: true, nationalTeam: true },
+    include: {
+      manufacturer: true,
+      club: { include: { country: true } },
+      nationalTeam: { include: { country: true } },
+    },
     orderBy: [{ seasonStart: "desc" }, { type: "asc" }],
   });
 }
@@ -75,7 +79,12 @@ export function getClubKits(clubId: string, type?: string) {
 export function getClubSeasonKits(clubId: string, seasonStart: number, seasonEnd: number) {
   return prisma.kit.findMany({
     where: { clubId, seasonStart, seasonEnd },
-    include: { manufacturer: true, mainSponsor: true, club: true, nationalTeam: true },
+    include: {
+      manufacturer: true,
+      mainSponsor: true,
+      club: { include: { country: true } },
+      nationalTeam: { include: { country: true } },
+    },
     orderBy: { type: "asc" },
   });
 }

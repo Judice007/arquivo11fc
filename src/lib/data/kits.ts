@@ -9,6 +9,14 @@ const KIT_DETAIL_INCLUDE = {
   competitions: { include: { competition: true } },
 } as const;
 
+// club.country / nationalTeam.country são usados pela tag de arquivo do KitCard
+// ("A11 · BRA · 2009 · HOME") — ver src/lib/archive-tag.ts.
+const KIT_CARD_INCLUDE = {
+  club: { include: { country: true } },
+  nationalTeam: { include: { country: true } },
+  manufacturer: true,
+} as const;
+
 export function getKitBySlug(slug: string) {
   return prisma.kit.findUnique({
     where: { slug },
@@ -37,7 +45,7 @@ export function getKitsForAdmin(limit = 300) {
 
 export function getRecentKits(limit = 8) {
   return prisma.kit.findMany({
-    include: { club: true, nationalTeam: true, manufacturer: true },
+    include: KIT_CARD_INCLUDE,
     orderBy: { createdAt: "desc" },
     take: limit,
   });
@@ -58,7 +66,7 @@ export function getOtherKitsSameSeason(kit: {
       seasonEnd: kit.seasonEnd,
       ...(kit.clubId ? { clubId: kit.clubId } : { nationalTeamId: kit.nationalTeamId }),
     },
-    include: { club: true, nationalTeam: true, manufacturer: true },
+    include: KIT_CARD_INCLUDE,
     orderBy: { type: "asc" },
   });
 }
@@ -67,7 +75,7 @@ export function getOtherKitsSameSeason(kit: {
 export function getKitsByYear(year: number) {
   return prisma.kit.findMany({
     where: { OR: [{ seasonStart: year }, { seasonEnd: year }] },
-    include: { club: true, nationalTeam: true, manufacturer: true },
+    include: KIT_CARD_INCLUDE,
     orderBy: [{ seasonStart: "desc" }],
   });
 }

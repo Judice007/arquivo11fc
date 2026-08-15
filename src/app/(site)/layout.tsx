@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Oswald } from "next/font/google";
+import { Barlow_Condensed, Inter } from "next/font/google";
 
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
@@ -11,14 +11,16 @@ const bodyFont = Inter({
   subsets: ["latin"],
 });
 
-const displayFont = Oswald({
+// Fonte de título condensada e forte — impacto editorial (ver docs/PROJECT_SPEC.md,
+// revisão de identidade visual de 2026-08-15).
+const displayFont = Barlow_Condensed({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["500", "600", "700", "800"],
 });
 
 const SITE_NAME = "Arquivo 11";
-const SITE_DESCRIPTION = "A história do futebol contada através de seus uniformes.";
+const SITE_DESCRIPTION = "A história do futebol vestida em camisas.";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {

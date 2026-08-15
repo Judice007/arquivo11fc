@@ -47,7 +47,7 @@ export default async function ClubPage({
         description={club.fullName}
       />
 
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
         <div className="flex flex-col gap-6 rounded-md border border-line bg-paper-raised p-6 sm:flex-row sm:items-center">
           <div className="flex h-24 w-24 shrink-0 items-center justify-center">
             {club.crestUrl ? (

@@ -58,7 +58,7 @@ export default async function ClubSeasonPage({
         description="Todos os uniformes catalogados para esta temporada."
       />
 
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
         {seasons.length > 1 && (
           <div className="mb-8">
             <SeasonSelector basePath={`/clubes/${club.slug}`} seasons={seasons} activeSeason={season} />

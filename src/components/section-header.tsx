@@ -4,7 +4,7 @@ export function SectionHeader({
   title,
   description,
   href,
-  hrefLabel = "Ver tudo",
+  hrefLabel = "Ver todos",
 }: {
   title: string;
   description?: string;
@@ -12,21 +12,21 @@ export function SectionHeader({
   hrefLabel?: string;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h2 className="font-display text-xl font-semibold uppercase tracking-tight text-ink md:text-2xl">
+    <div className="border-b border-line pb-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <h2 className="font-display text-sm font-semibold uppercase tracking-wide text-ink md:text-base">
           {title}
         </h2>
-        {description && <p className="mt-1 text-sm text-ink-muted">{description}</p>}
+        {href && (
+          <Link
+            href={href}
+            className="text-xs font-semibold uppercase tracking-wide text-accent transition-colors hover:text-accent-strong"
+          >
+            {hrefLabel} →
+          </Link>
+        )}
       </div>
-      {href && (
-        <Link
-          href={href}
-          className="text-sm font-medium text-accent transition-colors hover:text-accent-strong"
-        >
-          {hrefLabel} →
-        </Link>
-      )}
+      {description && <p className="mt-2 text-sm text-ink-muted">{description}</p>}
     </div>
   );
 }

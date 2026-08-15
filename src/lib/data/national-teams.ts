@@ -22,7 +22,11 @@ export function getNationalTeamKits(nationalTeamId: string, type?: string) {
       nationalTeamId,
       ...(type && isKitType(type) ? { type } : {}),
     },
-    include: { manufacturer: true, club: true, nationalTeam: true },
+    include: {
+      manufacturer: true,
+      club: { include: { country: true } },
+      nationalTeam: { include: { country: true } },
+    },
     orderBy: [{ seasonStart: "desc" }, { type: "asc" }],
   });
 }

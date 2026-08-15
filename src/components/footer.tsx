@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { Logo } from "@/components/logo";
+
 const COLUMNS = [
   {
     title: "Navegar",
@@ -18,18 +20,14 @@ const COLUMNS = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-line bg-paper-raised">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 md:flex-row md:justify-between md:px-6">
+    <footer className="border-t border-line">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-10 px-4 py-14 md:flex-row md:justify-between md:px-8">
         <div className="max-w-sm">
-          <span className="font-display text-lg font-semibold uppercase tracking-tight text-ink">
-            Arquivo 11
-          </span>
-          <p className="mt-2 text-sm text-ink-muted">
-            A história do futebol contada através de seus uniformes.
-          </p>
+          <Logo />
+          <p className="mt-3 text-sm text-ink-muted">A história do futebol vestida em camisas.</p>
         </div>
 
-        <div className="flex gap-12">
+        <div className="flex gap-16">
           {COLUMNS.map((column) => (
             <div key={column.title}>
               <h3 className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
@@ -52,8 +50,8 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-line px-4 py-4 md:px-6">
-        <p className="mx-auto max-w-6xl text-xs text-ink-faint">
+      <div className="border-t border-line px-4 py-5 md:px-8">
+        <p className="mx-auto max-w-[1440px] text-xs text-ink-faint">
           Arquivo 11 (@arquivo11fc) — arquivo visual de uniformes de futebol. Conteúdo em fase de
           demonstração.
         </p>

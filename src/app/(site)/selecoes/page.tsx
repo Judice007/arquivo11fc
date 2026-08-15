@@ -22,7 +22,7 @@ export default async function NationalTeamsPage() {
         breadcrumbs={[{ label: "Início", href: "/" }, { label: "Seleções" }]}
       />
 
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
         {nationalTeams.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {nationalTeams.map((team) => (

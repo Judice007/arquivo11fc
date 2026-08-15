@@ -24,7 +24,7 @@ export default async function SeasonsPage() {
         breadcrumbs={[{ label: "Início", href: "/" }, { label: "Temporadas" }]}
       />
 
-      <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-8 md:px-6">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-10 px-4 py-8 md:px-8">
         {decades.length > 0 ? (
           decades.map((decade) => (
             <section key={decade.decadeStart}>

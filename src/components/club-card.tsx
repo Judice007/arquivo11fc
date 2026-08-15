@@ -9,16 +9,16 @@ export function ClubCard({ club }: { club: Club & { country: Country } }) {
   return (
     <Link
       href={`/clubes/${club.slug}`}
-      className="group flex flex-col items-center gap-3 rounded-md border border-line bg-paper-raised p-5 text-center shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+      className="group flex flex-col items-center gap-3 rounded-lg border border-line bg-paper-raised p-4 text-center transition-all hover:-translate-y-0.5 hover:shadow-card"
     >
-      <div className="flex h-16 w-16 items-center justify-center">
+      <div className="flex h-14 w-14 items-center justify-center">
         {club.crestUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={club.crestUrl}
             alt={club.name}
-            width={64}
-            height={64}
+            width={56}
+            height={56}
             className="h-full w-full object-contain"
           />
         ) : (
@@ -27,10 +27,7 @@ export function ClubCard({ club }: { club: Club & { country: Country } }) {
           </span>
         )}
       </div>
-      <div>
-        <p className="font-medium text-ink group-hover:text-accent">{club.name}</p>
-        <p className="text-xs text-ink-faint">{club.country.name}</p>
-      </div>
+      <p className="text-sm font-medium text-ink group-hover:text-accent">{club.name}</p>
     </Link>
   );
 }

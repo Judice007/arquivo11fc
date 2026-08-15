@@ -54,3 +54,8 @@ next-env.d.ts
 /.claude
 /.windsurf
 skills-lock.json
+
+# design reference screenshots dropped at the project root during design passes
+/*.png
+/*.jpg
+/*.jpeg

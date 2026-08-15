@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { KitCard } from "@/components/kit-card";
 import { PageHeader } from "@/components/page-header";
 import { SectionHeader } from "@/components/section-header";
+import { archiveTag } from "@/lib/archive-tag";
 import { getKitBySlug, getOtherKitsSameSeason, kitOwner } from "@/lib/data/kits";
 import { kitTypeLabel } from "@/lib/kit-types";
 import { formatSeason } from "@/lib/season";
@@ -34,6 +35,8 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
   const ownerHref = owner.kind === "club" ? `/clubes/${owner.slug}` : `/selecoes/${owner.slug}`;
   const season = formatSeason(kit.seasonStart, kit.seasonEnd);
   const otherKits = await getOtherKitsSameSeason(kit);
+  const ownerCountry = kit.club?.country ?? kit.nationalTeam?.country ?? null;
+  const tag = ownerCountry ? archiveTag({ type: kit.type, seasonStart: kit.seasonStart, country: ownerCountry }) : null;
 
   return (
     <div>
@@ -47,7 +50,7 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
         title={`${owner.name} — ${kitTypeLabel(kit.type)} ${season}`}
       />
 
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-8 md:grid-cols-[3fr_2fr] md:px-6">
+      <div className="mx-auto grid max-w-[1440px] gap-10 px-4 py-8 md:grid-cols-[3fr_2fr] md:px-8">
         <div>
           <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-md border border-line bg-paper-muted">
             {kit.mainImageUrl ? (
@@ -108,6 +111,8 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
             <ColorSwatch label="Cor secundária" color={kit.secondaryColor} />
           </div>
 
+          {tag && <p className="text-xs uppercase tracking-wide text-ink-faint">{tag}</p>}
+
           {kit.description && (
             <div>
               <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
@@ -120,7 +125,7 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
       </div>
 
       {otherKits.length > 0 && (
-        <div className="mx-auto max-w-6xl px-4 pb-16 md:px-6">
+        <div className="mx-auto max-w-[1440px] px-4 pb-16 md:px-8">
           <SectionHeader title="Outros uniformes desta temporada" />
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {otherKits.map((other) => (

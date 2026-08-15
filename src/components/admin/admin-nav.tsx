@@ -16,7 +16,7 @@ export function AdminNav() {
     <header className="border-b border-line-strong bg-ink">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
         <Link href="/admin" className="text-sm font-semibold uppercase tracking-wide text-paper">
-          Arquivo 11 <span className="text-brass">· Admin</span>
+          Arquivo 11 <span className="text-accent">· Admin</span>
         </Link>
         <Link href="/" className="text-xs text-paper/70 transition-colors hover:text-paper">
           Ver site público →

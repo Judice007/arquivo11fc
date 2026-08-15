@@ -1,15 +1,15 @@
 import Link from "next/link";
 
+// Logo tipográfico: "ARQUIVO" em tinta, "11" em verde. Sem ícone (bola, chuteira,
+// escudo) por decisão de identidade visual — ver docs/PROJECT_SPEC.md. Isolado
+// neste componente para ser fácil de trocar por uma marca definitiva depois.
 export function Logo({ className = "" }: { className?: string }) {
   return (
     <Link
       href="/"
-      className={`group inline-flex items-center gap-2 font-display uppercase tracking-tight ${className}`}
+      className={`font-display text-2xl font-bold uppercase leading-none tracking-tight text-ink ${className}`}
     >
-      <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-accent text-sm font-bold text-paper transition-colors group-hover:bg-accent-strong">
-        11
-      </span>
-      <span className="text-lg font-semibold text-ink">Arquivo 11</span>
+      Arquivo <span className="text-accent">11</span>
     </Link>
   );
 }

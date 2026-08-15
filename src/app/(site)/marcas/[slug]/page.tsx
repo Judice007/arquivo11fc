@@ -37,7 +37,7 @@ export default async function ManufacturerPage({
         description={`${kits.length} ${kits.length === 1 ? "uniforme catalogado" : "uniformes catalogados"}.`}
       />
 
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
         {kits.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {kits.map((kit) => (

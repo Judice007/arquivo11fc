@@ -155,6 +155,8 @@ Mobile-first. Aparência de arquivo esportivo / museu digital moderno / catálog
 
 Diretrizes: fundo predominantemente neutro, tipografia forte e legível, bastante espaço para fotos, cards consistentes, hierarquia visual clara, responsivo, acessível. Identidade visual final ainda não definida — usar tokens/variáveis fáceis de alterar depois.
 
+**Revisão de identidade visual (2026-08-15):** paleta e tipografia ajustadas para um mockup de referência (arquivo esportivo premium / museu digital / catálogo editorial). Fundo `#F4F2ED`, tinta `#151515`, texto secundário `#6F6F6F`, verde único de identidade `#173A2B` — sem cor secundária (o antigo tom de latão foi removido). Tipografia: Barlow Condensed para títulos (`next/font/google`), Inter para corpo/interface. Tokens em `src/app/globals.css` (mesmos nomes de variável de antes — `--color-paper`, `--color-ink`, etc. — só os valores mudaram, para não exigir reescrever todos os componentes). Cards de uniforme ganharam uma identificação discreta de arquivo ("A11 · BRA · 2009 · HOME"), gerada por `src/lib/archive-tag.ts` a partir do tipo/temporada/país do clube ou seleção (sem alterar o schema — país não tem coluna de código ISO ainda, só um lookup com fallback).
+
 ## Componentes reutilizáveis
 
 Header, Footer, SearchBar, ClubCard, KitCard, ManufacturerCard, SeasonSelector, KitTypeFilter, Breadcrumbs, EmptyState, PageHeader, SectionHeader. Evitar duplicação de markup.

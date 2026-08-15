@@ -28,7 +28,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/busca">) 
         breadcrumbs={[{ label: "Início", href: "/" }, { label: "Busca" }]}
       />
 
-      <div className="mx-auto max-w-3xl px-4 py-8 md:px-6">
+      <div className="mx-auto max-w-3xl px-4 py-8 md:px-8">
         <SearchBar size="lg" defaultValue={query} />
 
         {!query ? (

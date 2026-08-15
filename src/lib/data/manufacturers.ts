@@ -13,7 +13,11 @@ export function getManufacturerBySlug(slug: string) {
 export function getManufacturerKits(manufacturerId: string) {
   return prisma.kit.findMany({
     where: { manufacturerId },
-    include: { club: true, nationalTeam: true, manufacturer: true },
+    include: {
+      club: { include: { country: true } },
+      nationalTeam: { include: { country: true } },
+      manufacturer: true,
+    },
     orderBy: [{ seasonStart: "desc" }],
   });
 }
