@@ -80,12 +80,14 @@ export async function createKit(formData: FormData) {
       imageCredit: data.imageCredit || null,
       imageLicense: data.imageLicense || null,
       slug,
+      status: data.status,
       competitions: { create: data.competitionIds.map((competitionId) => ({ competitionId })) },
       images: {
-        create: data.images.map((image, index) => ({
+        create: data.images.map((image) => ({
           imageUrl: image.imageUrl,
           type: image.type,
-          sortOrder: index,
+          sourceType: image.sourceType,
+          sortOrder: image.sortOrder,
         })),
       },
     },
@@ -139,12 +141,14 @@ export async function updateKit(kitId: string, formData: FormData) {
         photographer: data.photographer || null,
         imageCredit: data.imageCredit || null,
         imageLicense: data.imageLicense || null,
+        status: data.status,
         competitions: { create: data.competitionIds.map((competitionId) => ({ competitionId })) },
         images: {
-          create: data.images.map((image, index) => ({
+          create: data.images.map((image) => ({
             imageUrl: image.imageUrl,
             type: image.type,
-            sortOrder: index,
+            sourceType: image.sourceType,
+            sortOrder: image.sortOrder,
           })),
         },
       },
@@ -161,4 +165,68 @@ export async function deleteKit(kitId: string) {
   await prisma.kit.delete({ where: { id: kitId } });
   revalidatePath("/admin/uniformes");
   redirect("/admin/uniformes");
+}
+
+/**
+ * Copies an existing kit into a new, unsaved-in-spirit DRAFT record — same club/season/
+ * type/colors/manufacturer/sponsor/competitions/images, so the admin can tweak the parts
+ * that differ (e.g. HOME -> AWAY, novas cores, nova imagem) instead of retyping everything.
+ * Always lands as DRAFT regardless of the original's status, so it can never appear on the
+ * public site until the admin reviews and explicitly publishes it.
+ */
+export async function duplicateKit(kitId: string) {
+  const original = await prisma.kit.findUnique({
+    where: { id: kitId },
+    include: { images: true, competitions: true },
+  });
+  if (!original) redirect("/admin/uniformes");
+
+  const baseSlug = `${original.slug}-copia`;
+  const slug = await ensureUniqueSlug(baseSlug, (candidate) =>
+    prisma.kit.findUnique({ where: { slug: candidate } }).then(Boolean),
+  );
+
+  const duplicate = await prisma.kit.create({
+    data: {
+      clubId: original.clubId,
+      nationalTeamId: original.nationalTeamId,
+      seasonStart: original.seasonStart,
+      seasonEnd: original.seasonEnd,
+      type: original.type,
+      manufacturerId: original.manufacturerId,
+      mainSponsorId: original.mainSponsorId,
+      primaryColor: original.primaryColor,
+      secondaryColor: original.secondaryColor,
+      description: original.description,
+      mainImageUrl: original.mainImageUrl,
+      mainImageSourceType: original.mainImageSourceType,
+      backImageUrl: original.backImageUrl,
+      backImageSourceType: original.backImageSourceType,
+      sourceUrl: original.sourceUrl,
+      sourceOwner: original.sourceOwner,
+      photographer: original.photographer,
+      imageCredit: original.imageCredit,
+      imageLicense: original.imageLicense,
+      slug,
+      status: "DRAFT",
+      competitions: {
+        create: original.competitions.map((c) => ({ competitionId: c.competitionId })),
+      },
+      images: {
+        create: original.images.map((image) => ({
+          imageUrl: image.imageUrl,
+          type: image.type,
+          sourceType: image.sourceType,
+          sourceUrl: image.sourceUrl,
+          photographer: image.photographer,
+          credit: image.credit,
+          license: image.license,
+          sortOrder: image.sortOrder,
+        })),
+      },
+    },
+  });
+
+  revalidatePath("/admin/uniformes");
+  redirect(`/admin/uniformes/${duplicate.id}/editar`);
 }

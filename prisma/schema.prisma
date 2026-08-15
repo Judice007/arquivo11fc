@@ -35,6 +35,14 @@ enum ImageSourceType {
   DIGITAL_RECREATION
 }
 
+// DRAFT nunca aparece nas páginas/queries públicas (ver src/lib/data/kits.ts e afins) —
+// só é visível no /admin. Default PUBLISHED para não mudar o comportamento de quem já
+// usa o fluxo normal de cadastro; a ação "Duplicar uniforme" força DRAFT explicitamente.
+enum KitStatus {
+  DRAFT
+  PUBLISHED
+}
+
 model Country {
   id        String   @id @default(cuid())
   name      String
@@ -165,7 +173,8 @@ model Kit {
   imageCredit  String? // crédito
   imageLicense String? // observação de uso
 
-  slug String @unique
+  slug   String    @unique
+  status KitStatus @default(PUBLISHED)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -183,6 +192,7 @@ model Kit {
   @@index([manufacturerId])
   @@index([seasonStart, seasonEnd])
   @@index([type])
+  @@index([status])
 }
 
 model KitImage {

@@ -50,10 +50,10 @@ export function getClubBySlug(slug: string) {
   });
 }
 
-/** Distinct seasons (most recent first) for which a club has at least one kit. */
+/** Distinct seasons (most recent first) for which a club has at least one published kit. */
 export async function getClubSeasons(clubId: string) {
   const kits = await prisma.kit.findMany({
-    where: { clubId },
+    where: { clubId, status: "PUBLISHED" },
     select: { seasonStart: true, seasonEnd: true },
     distinct: ["seasonStart", "seasonEnd"],
     orderBy: [{ seasonStart: "desc" }, { seasonEnd: "desc" }],
@@ -65,6 +65,7 @@ export function getClubKits(clubId: string, type?: string) {
   return prisma.kit.findMany({
     where: {
       clubId,
+      status: "PUBLISHED",
       ...(type && isKitType(type) ? { type } : {}),
     },
     include: {
@@ -78,7 +79,7 @@ export function getClubKits(clubId: string, type?: string) {
 
 export function getClubSeasonKits(clubId: string, seasonStart: number, seasonEnd: number) {
   return prisma.kit.findMany({
-    where: { clubId, seasonStart, seasonEnd },
+    where: { clubId, seasonStart, seasonEnd, status: "PUBLISHED" },
     include: {
       manufacturer: true,
       mainSponsor: true,

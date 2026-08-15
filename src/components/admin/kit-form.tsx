@@ -8,7 +8,9 @@ import type {
   NationalTeam,
   Sponsor,
 } from "@/generated/prisma/client";
+import { KitGalleryEditor } from "@/components/admin/kit-gallery-editor";
 import { IMAGE_SOURCE_TYPES, IMAGE_SOURCE_TYPE_LABELS_PT } from "@/lib/image-source-type";
+import { KIT_STATUSES, KIT_STATUS_LABELS_PT } from "@/lib/kit-status";
 import { KIT_TYPES, kitTypeLabel } from "@/lib/kit-types";
 import { formatSeason } from "@/lib/season";
 
@@ -38,7 +40,12 @@ export function KitForm({
 }) {
   const ownerValue = kit ? (kit.clubId ? `club:${kit.clubId}` : `nationalTeam:${kit.nationalTeamId}`) : "";
   const selectedCompetitionIds = new Set(kit?.competitions.map((c) => c.competitionId) ?? []);
-  const galleryText = (kit?.images ?? []).map((image) => `${image.type}|${image.imageUrl}`).join("\n");
+  const initialGalleryRows = (kit?.images ?? []).map((image) => ({
+    type: image.type,
+    sourceType: image.sourceType,
+    imageUrl: image.imageUrl,
+    sortOrder: image.sortOrder,
+  }));
 
   return (
     <form action={action} className="flex max-w-2xl flex-col gap-6">
@@ -94,6 +101,20 @@ export function KitForm({
               </option>
             ))}
           </select>
+        </label>
+
+        <label className="field-label">
+          Status
+          <select name="status" defaultValue={kit?.status ?? "PUBLISHED"} className="field-select">
+            {KIT_STATUSES.map((status) => (
+              <option key={status} value={status}>
+                {KIT_STATUS_LABELS_PT[status]}
+              </option>
+            ))}
+          </select>
+          <span className="font-normal normal-case text-ink-faint">
+            Rascunho não aparece no site público. Publicado exige imagem principal.
+          </span>
         </label>
       </fieldset>
 
@@ -236,20 +257,10 @@ export function KitForm({
           esses arquivos vão em Fontes e referências.
         </p>
 
-        <label className="field-label">
-          Galeria adicional (opcional) — uma imagem por linha, no formato TIPO|URL
-          <textarea
-            name="galleryText"
-            defaultValue={galleryText}
-            rows={4}
-            placeholder={"DETALHE|https://...\nOUTRA|https://..."}
-            className="field-textarea font-mono text-xs"
-          />
-          <span className="font-normal normal-case text-ink-faint">
-            Tipos aceitos: FRENTE, COSTAS, DETALHE, OUTRA — para ângulos extras do acervo, não para fotos
-            de terceiros.
-          </span>
-        </label>
+        <div className="field-label">
+          Galeria adicional (opcional)
+          <KitGalleryEditor initialRows={initialGalleryRows} />
+        </div>
       </fieldset>
 
       <fieldset className="flex flex-col gap-4 rounded-md border border-line bg-paper-raised p-4">

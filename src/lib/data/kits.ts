@@ -1,4 +1,7 @@
+import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
+import { isKitType } from "@/lib/kit-types";
+import { isKitStatus } from "@/lib/kit-status";
 
 const KIT_DETAIL_INCLUDE = {
   club: { include: { country: true } },
@@ -17,9 +20,14 @@ const KIT_CARD_INCLUDE = {
   manufacturer: true,
 } as const;
 
+// Uniformes DRAFT nunca aparecem nas páginas públicas — todas as funções abaixo que
+// alimentam o site (não o /admin) filtram por isso. `getKitsForAdmin`/`getKitById`
+// são as exceções deliberadas.
+const PUBLISHED: Prisma.KitWhereInput = { status: "PUBLISHED" };
+
 export function getKitBySlug(slug: string) {
   return prisma.kit.findUnique({
-    where: { slug },
+    where: { slug, status: "PUBLISHED" },
     include: KIT_DETAIL_INCLUDE,
   });
 }
@@ -31,20 +39,51 @@ export function getKitById(id: string) {
   });
 }
 
-/** All kits, most recently created first — used by the admin list. See caveat below. */
-export function getKitsForAdmin(limit = 300) {
+export type AdminKitFilters = {
+  ownerType?: "club" | "nationalTeam";
+  ownerId?: string;
+  type?: string;
+  status?: string;
+  seasonYear?: number;
+  search?: string;
+};
+
+/** All kits for the admin list, most recently updated first. See pagination caveat below. */
+export function getKitsForAdmin(filters: AdminKitFilters = {}, limit = 300) {
+  const conditions: Prisma.KitWhereInput[] = [];
+
+  if (filters.ownerType === "club" && filters.ownerId) conditions.push({ clubId: filters.ownerId });
+  if (filters.ownerType === "nationalTeam" && filters.ownerId) conditions.push({ nationalTeamId: filters.ownerId });
+  if (filters.type && isKitType(filters.type)) conditions.push({ type: filters.type });
+  if (filters.status && isKitStatus(filters.status)) conditions.push({ status: filters.status });
+  if (filters.seasonYear) {
+    conditions.push({ OR: [{ seasonStart: filters.seasonYear }, { seasonEnd: filters.seasonYear }] });
+  }
+  if (filters.search) {
+    const search = filters.search;
+    conditions.push({
+      OR: [
+        { slug: { contains: search } },
+        { club: { name: { contains: search } } },
+        { nationalTeam: { name: { contains: search } } },
+      ],
+    });
+  }
+
   // Sem paginação real ainda (fora do escopo do MVP — ver docs/PROJECT_SPEC.md,
   // seção Performance): um `take` alto evita carregar o banco inteiro de uma vez
   // conforme o catálogo crescer, mas uma lista paginada de verdade é o próximo passo.
   return prisma.kit.findMany({
+    where: conditions.length > 0 ? { AND: conditions } : undefined,
     include: { club: true, nationalTeam: true, manufacturer: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: { updatedAt: "desc" },
     take: limit,
   });
 }
 
 export function getRecentKits(limit = 8) {
   return prisma.kit.findMany({
+    where: PUBLISHED,
     include: KIT_CARD_INCLUDE,
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -61,6 +100,7 @@ export function getOtherKitsSameSeason(kit: {
 }) {
   return prisma.kit.findMany({
     where: {
+      ...PUBLISHED,
       id: { not: kit.id },
       seasonStart: kit.seasonStart,
       seasonEnd: kit.seasonEnd,
@@ -74,14 +114,14 @@ export function getOtherKitsSameSeason(kit: {
 /** Kits touching a given calendar year, either as a single-year season or as either edge of a split season. */
 export function getKitsByYear(year: number) {
   return prisma.kit.findMany({
-    where: { OR: [{ seasonStart: year }, { seasonEnd: year }] },
+    where: { ...PUBLISHED, OR: [{ seasonStart: year }, { seasonEnd: year }] },
     include: KIT_CARD_INCLUDE,
     orderBy: [{ seasonStart: "desc" }],
   });
 }
 
 export async function getRandomKit() {
-  const ids = await prisma.kit.findMany({ select: { id: true } });
+  const ids = await prisma.kit.findMany({ where: PUBLISHED, select: { id: true } });
   if (ids.length === 0) return null;
   const pick = ids[Math.floor(Math.random() * ids.length)];
   return prisma.kit.findUnique({ where: { id: pick.id }, include: KIT_DETAIL_INCLUDE });
@@ -89,6 +129,7 @@ export async function getRandomKit() {
 
 export async function getAvailableSeasonYears() {
   const kits = await prisma.kit.findMany({
+    where: PUBLISHED,
     select: { seasonStart: true, seasonEnd: true },
   });
   const years = new Set<number>();

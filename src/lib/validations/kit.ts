@@ -1,7 +1,9 @@
 import { z } from "zod";
 
-import { KIT_IMAGE_TYPES, KIT_TYPES } from "@/lib/kit-types";
+import type { ImageSourceType } from "@/generated/prisma/client";
 import { IMAGE_SOURCE_TYPES } from "@/lib/image-source-type";
+import { KIT_IMAGE_TYPES, KIT_TYPES } from "@/lib/kit-types";
+import { KIT_STATUSES } from "@/lib/kit-status";
 import { parseSeasonLabel } from "@/lib/season";
 
 const optionalUrl = z.union([z.literal(""), z.string().trim().url("URL inválida.")]).optional();
@@ -18,6 +20,7 @@ export const kitSchema = z
     owner: z.string().trim().regex(OWNER_PATTERN, "Selecione o clube ou a seleção."),
     seasonLabel: z.string().trim().min(4, 'Informe a temporada (ex: "2025" ou "2025/26").'),
     type: z.enum(KIT_TYPES, { message: "Selecione um tipo de uniforme válido." }),
+    status: z.enum(KIT_STATUSES).default("PUBLISHED"),
     manufacturerId: optionalId,
     mainSponsorId: optionalId,
     primaryColor: z.string().trim().optional(),
@@ -37,12 +40,14 @@ export const kitSchema = z
     imageCredit: z.string().trim().optional(),
     imageLicense: z.string().trim().optional(),
     competitionIds: z.array(z.string()).default([]),
-    // Uma imagem de galeria por linha, no formato "TIPO|URL" (ex: "FRENTE|https://...").
-    galleryText: z.string().trim().optional(),
   })
   .refine((data) => parseSeasonLabelSafe(data.seasonLabel) !== null, {
     message: 'Temporada inválida. Use "2025" ou "2025/26".',
     path: ["seasonLabel"],
+  })
+  .refine((data) => data.status !== "PUBLISHED" || Boolean(data.mainImageUrl), {
+    message: "Uniformes publicados precisam de uma imagem principal. Salve como rascunho ou preencha a frente padronizada.",
+    path: ["mainImageUrl"],
   });
 
 export type KitInput = z.infer<typeof kitSchema>;
@@ -60,6 +65,7 @@ export function parseKitForm(formData: FormData) {
     owner: formData.get("owner"),
     seasonLabel: formData.get("seasonLabel"),
     type: formData.get("type"),
+    status: formData.get("status") || undefined,
     manufacturerId: formData.get("manufacturerId") || undefined,
     mainSponsorId: formData.get("mainSponsorId") || undefined,
     primaryColor: formData.get("primaryColor") || undefined,
@@ -75,7 +81,6 @@ export function parseKitForm(formData: FormData) {
     imageCredit: formData.get("imageCredit") || undefined,
     imageLicense: formData.get("imageLicense") || undefined,
     competitionIds: formData.getAll("competitionIds").map(String),
-    galleryText: formData.get("galleryText") || undefined,
   });
 
   const ownerMatch = OWNER_PATTERN.exec(parsed.owner);
@@ -83,29 +88,39 @@ export function parseKitForm(formData: FormData) {
   const [, ownerType, ownerId] = ownerMatch as unknown as [string, "club" | "nationalTeam", string];
 
   const { seasonStart, seasonEnd } = parseSeasonLabel(parsed.seasonLabel);
-  const images = parseGalleryText(parsed.galleryText);
+  const images = parseGalleryFields(formData);
 
   return { ...parsed, ownerType, ownerId, seasonStart, seasonEnd, images };
 }
 
-export type ParsedGalleryImage = { type: string; imageUrl: string };
+export type ParsedGalleryImage = { type: string; sourceType: ImageSourceType; imageUrl: string; sortOrder: number };
 
-/** Parses the admin's "TIPO|URL" gallery textarea, skipping malformed or unknown-type lines. */
-export function parseGalleryText(text: string | undefined): ParsedGalleryImage[] {
-  if (!text) return [];
+/**
+ * Reads the gallery editor's parallel array fields (galleryType[], gallerySourceType[],
+ * galleryUrl[], gallerySortOrder[]) — one entry per row, same order — and zips them back
+ * into image records. Rows with an empty URL or an unknown type are skipped.
+ */
+export function parseGalleryFields(formData: FormData): ParsedGalleryImage[] {
+  const types = formData.getAll("galleryType").map(String);
+  const sourceTypes = formData.getAll("gallerySourceType").map(String);
+  const urls = formData.getAll("galleryUrl").map(String);
+  const sortOrders = formData.getAll("gallerySortOrder").map(String);
 
-  return text
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [rawType, ...rest] = line.split("|");
-      const type = rawType?.trim().toUpperCase();
-      const imageUrl = rest.join("|").trim();
-      return { type, imageUrl };
-    })
-    .filter(
-      (entry): entry is ParsedGalleryImage =>
-        Boolean(entry.imageUrl) && (KIT_IMAGE_TYPES as readonly string[]).includes(entry.type ?? ""),
-    );
+  const rows: ParsedGalleryImage[] = [];
+  for (let i = 0; i < urls.length; i += 1) {
+    const imageUrl = urls[i]?.trim();
+    const type = types[i]?.trim().toUpperCase();
+    const sourceType = sourceTypes[i]?.trim().toUpperCase();
+    if (!imageUrl || !type || !(KIT_IMAGE_TYPES as readonly string[]).includes(type)) continue;
+    const validSourceType = (IMAGE_SOURCE_TYPES as readonly string[]).includes(sourceType)
+      ? (sourceType as ImageSourceType)
+      : "DIGITAL_RECREATION";
+    rows.push({
+      type,
+      sourceType: validSourceType,
+      imageUrl,
+      sortOrder: Number(sortOrders[i]) || i,
+    });
+  }
+  return rows;
 }

@@ -20,6 +20,7 @@ export function getNationalTeamKits(nationalTeamId: string, type?: string) {
   return prisma.kit.findMany({
     where: {
       nationalTeamId,
+      status: "PUBLISHED",
       ...(type && isKitType(type) ? { type } : {}),
     },
     include: {
@@ -33,7 +34,7 @@ export function getNationalTeamKits(nationalTeamId: string, type?: string) {
 
 export async function getNationalTeamSeasons(nationalTeamId: string) {
   return prisma.kit.findMany({
-    where: { nationalTeamId },
+    where: { nationalTeamId, status: "PUBLISHED" },
     select: { seasonStart: true, seasonEnd: true },
     distinct: ["seasonStart", "seasonEnd"],
     orderBy: [{ seasonStart: "desc" }, { seasonEnd: "desc" }],

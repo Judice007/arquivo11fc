@@ -12,7 +12,7 @@ export function getManufacturerBySlug(slug: string) {
 
 export function getManufacturerKits(manufacturerId: string) {
   return prisma.kit.findMany({
-    where: { manufacturerId },
+    where: { manufacturerId, status: "PUBLISHED" },
     include: {
       club: { include: { country: true } },
       nationalTeam: { include: { country: true } },
@@ -22,10 +22,10 @@ export function getManufacturerKits(manufacturerId: string) {
   });
 }
 
-/** Manufacturers with at least one kit registered, for the "explore by manufacturer" section. */
+/** Manufacturers with at least one published kit, for the "explore by manufacturer" section. */
 export async function getManufacturersWithKitCount(limit?: number) {
   const manufacturers = await prisma.manufacturer.findMany({
-    include: { _count: { select: { kits: true } } },
+    include: { _count: { select: { kits: { where: { status: "PUBLISHED" } } } } },
     orderBy: { name: "asc" },
   });
   const withKits = manufacturers.filter((m) => m._count.kits > 0);
