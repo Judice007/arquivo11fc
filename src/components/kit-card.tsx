@@ -14,14 +14,14 @@ export type KitCardKit = Kit & {
   manufacturer: Manufacturer | null;
 };
 
-export function KitCard({ kit }: { kit: KitCardKit }) {
+export function KitCard({ kit, hrefQuery }: { kit: KitCardKit; hrefQuery?: string }) {
   const owner = kit.club ?? kit.nationalTeam;
   const ownerName = owner?.name ?? "—";
   const tag = owner ? archiveTag({ type: kit.type, seasonStart: kit.seasonStart, country: owner.country }) : null;
 
   return (
     <Link
-      href={`/uniformes/${kit.slug}`}
+      href={`/uniformes/${kit.slug}${hrefQuery ?? ""}`}
       className="group flex flex-col overflow-hidden rounded-lg border border-line bg-paper-raised shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
     >
       <div className="relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-paper-muted">

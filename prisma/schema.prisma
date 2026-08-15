@@ -176,6 +176,11 @@ model Kit {
   slug   String    @unique
   status KitStatus @default(PUBLISHED)
 
+  // Contadores simples para o hero da Home ("mais buscado"/"mais visualizado") —
+  // incrementados via src/lib/data/kits.ts, sem tabela de eventos/analytics.
+  viewCount        Int @default(0)
+  searchClickCount Int @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

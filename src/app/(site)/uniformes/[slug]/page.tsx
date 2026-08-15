@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { after } from "next/server";
 import { notFound } from "next/navigation";
 
 import { KitCard } from "@/components/kit-card";
 import { PageHeader } from "@/components/page-header";
 import { SectionHeader } from "@/components/section-header";
 import { archiveTag } from "@/lib/archive-tag";
-import { getKitBySlug, getOtherKitsSameSeason, kitOwner } from "@/lib/data/kits";
+import { getKitBySlug, getOtherKitsSameSeason, kitOwner, recordKitSearchClick, recordKitView } from "@/lib/data/kits";
 import { DIGITAL_RECREATION_NOTE } from "@/lib/image-source-type";
 import { kitTypeLabel } from "@/lib/kit-types";
 import { formatSeason } from "@/lib/season";
@@ -27,10 +28,17 @@ export async function generateMetadata({
   };
 }
 
-export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">) {
+export default async function KitPage({ params, searchParams }: PageProps<"/uniformes/[slug]">) {
   const { slug } = await params;
+  const { from } = await searchParams;
   const kit = await getKitBySlug(slug);
   if (!kit) notFound();
+
+  // Fora do path de resposta — não bloqueia o render nem afeta cache/performance da página.
+  after(() => {
+    recordKitView(kit.id);
+    if (from === "busca") recordKitSearchClick(kit.id);
+  });
 
   const owner = kitOwner(kit);
   const ownerHref = owner.kind === "club" ? `/clubes/${owner.slug}` : `/selecoes/${owner.slug}`;

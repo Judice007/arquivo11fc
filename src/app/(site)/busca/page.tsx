@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { EmptyState } from "@/components/empty-state";
+import { KitCard } from "@/components/kit-card";
 import { PageHeader } from "@/components/page-header";
 import { SearchBar } from "@/components/search-bar";
 import { globalSearch } from "@/lib/data/search";
@@ -18,7 +19,11 @@ export default async function SearchPage({ searchParams }: PageProps<"/busca">) 
   const results = await globalSearch(query);
 
   const hasResults =
-    results.clubs.length > 0 || results.nationalTeams.length > 0 || results.manufacturers.length > 0 || results.season;
+    results.clubs.length > 0 ||
+    results.nationalTeams.length > 0 ||
+    results.manufacturers.length > 0 ||
+    results.kits.length > 0 ||
+    results.season;
 
   return (
     <div>
@@ -35,6 +40,17 @@ export default async function SearchPage({ searchParams }: PageProps<"/busca">) 
           <p className="mt-8 text-sm text-ink-muted">Digite um clube, seleção, temporada ou fabricante.</p>
         ) : hasResults ? (
           <div className="mt-8 flex flex-col gap-8">
+            {results.kits.length > 0 && (
+              <div>
+                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-faint">Uniformes</h2>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                  {results.kits.map((kit) => (
+                    <KitCard key={kit.id} kit={kit} hrefQuery="?from=busca" />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {results.clubs.length > 0 && (
               <ResultGroup title="Clubes">
                 {results.clubs.map((club) => (

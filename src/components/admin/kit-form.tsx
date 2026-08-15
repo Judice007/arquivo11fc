@@ -116,6 +116,13 @@ export function KitForm({
             Rascunho não aparece no site público. Publicado exige imagem principal.
           </span>
         </label>
+
+        {kit && (
+          <p className="text-xs text-ink-faint">
+            {kit.viewCount} visualizaç{kit.viewCount === 1 ? "ão" : "ões"} · {kit.searchClickCount} clique
+            {kit.searchClickCount === 1 ? "" : "s"} pela busca
+          </p>
+        )}
       </fieldset>
 
       <fieldset className="flex flex-col gap-4 rounded-md border border-line bg-paper-raised p-4">

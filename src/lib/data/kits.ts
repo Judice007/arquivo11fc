@@ -81,6 +81,16 @@ export function getKitsForAdmin(filters: AdminKitFilters = {}, limit = 300) {
   });
 }
 
+/** Registra uma visualização da ficha pública do uniforme (chamado via `after()`, fora do path de resposta). */
+export function recordKitView(id: string) {
+  return prisma.kit.update({ where: { id }, data: { viewCount: { increment: 1 } } }).catch(() => {});
+}
+
+/** Registra um clique vindo da busca interna, para o ranking "mais buscado". */
+export function recordKitSearchClick(id: string) {
+  return prisma.kit.update({ where: { id }, data: { searchClickCount: { increment: 1 } } }).catch(() => {});
+}
+
 export function getRecentKits(limit = 8) {
   return prisma.kit.findMany({
     where: PUBLISHED,
@@ -88,6 +98,58 @@ export function getRecentKits(limit = 8) {
     orderBy: { createdAt: "desc" },
     take: limit,
   });
+}
+
+export type HeroKits = {
+  recent: Prisma.KitGetPayload<{ include: typeof KIT_CARD_INCLUDE }> | null;
+  searched: Prisma.KitGetPayload<{ include: typeof KIT_CARD_INCLUDE }> | null;
+  viewed: Prisma.KitGetPayload<{ include: typeof KIT_CARD_INCLUDE }> | null;
+};
+
+/**
+ * Os 3 uniformes dos cards do hero da Home: mais recente publicado, mais buscado
+ * (searchClickCount) e mais visualizado (viewCount) — sem repetir o mesmo uniforme
+ * entre os 3 cards. Quando não há dado positivo de busca/visualização ainda (site
+ * novo), cai para o próximo uniforme publicado ainda não usado, e por fim reaproveita
+ * `recent` como último recurso, para nunca deixar um card vazio.
+ */
+export async function getHeroKits(): Promise<HeroKits> {
+  const used = new Set<string>();
+
+  const recent = await prisma.kit.findFirst({
+    where: PUBLISHED,
+    include: KIT_CARD_INCLUDE,
+    orderBy: { createdAt: "desc" },
+  });
+  if (recent) used.add(recent.id);
+
+  async function pickRanked(orderField: "viewCount" | "searchClickCount") {
+    const ranked = await prisma.kit.findMany({
+      where: PUBLISHED,
+      include: KIT_CARD_INCLUDE,
+      orderBy: [{ [orderField]: "desc" }, { createdAt: "desc" }],
+      take: 10,
+    });
+    const withActivity = ranked.find((kit) => !used.has(kit.id) && kit[orderField] > 0);
+    if (withActivity) return withActivity;
+
+    const fallback = await prisma.kit.findMany({
+      where: PUBLISHED,
+      include: KIT_CARD_INCLUDE,
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
+    const unused = fallback.find((kit) => !used.has(kit.id));
+    return unused ?? recent ?? null;
+  }
+
+  const viewed = await pickRanked("viewCount");
+  if (viewed) used.add(viewed.id);
+
+  const searched = await pickRanked("searchClickCount");
+  if (searched) used.add(searched.id);
+
+  return { recent, searched, viewed };
 }
 
 /** Other kits from the same club/national team and the same season, excluding the given kit. */

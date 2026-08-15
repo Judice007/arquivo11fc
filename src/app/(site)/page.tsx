@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ClubCard } from "@/components/club-card";
 import { DecadeCard } from "@/components/decade-card";
 import { EmptyState } from "@/components/empty-state";
@@ -8,7 +10,7 @@ import { SearchBar } from "@/components/search-bar";
 import { SectionHeader } from "@/components/section-header";
 import { archiveTag } from "@/lib/archive-tag";
 import { getFeaturedClubs } from "@/lib/data/clubs";
-import { getRecentKits } from "@/lib/data/kits";
+import { getHeroKits, getRecentKits } from "@/lib/data/kits";
 import { getManufacturersWithKitCount } from "@/lib/data/manufacturers";
 import { kitTypeLabel } from "@/lib/kit-types";
 import { formatSeason } from "@/lib/season";
@@ -21,14 +23,28 @@ const DECADES = [
   { label: "1980s", representativeYear: 1980 },
 ];
 
+const HERO_LABELS = {
+  searched: "Mais buscado",
+  recent: "Mais recente",
+  viewed: "Mais visualizado",
+} as const;
+
 export default async function HomePage() {
-  const [clubs, recentKits, manufacturers] = await Promise.all([
+  const [clubs, recentKits, manufacturers, heroKitsByRanking] = await Promise.all([
     getFeaturedClubs(8),
     getRecentKits(8),
     getManufacturersWithKitCount(7),
+    getHeroKits(),
   ]);
 
-  const heroKits = recentKits.slice(0, 3);
+  const heroKitEntries: { kit: KitCardKit | null; label: string }[] = [
+    { kit: heroKitsByRanking.searched, label: HERO_LABELS.searched },
+    { kit: heroKitsByRanking.recent, label: HERO_LABELS.recent },
+    { kit: heroKitsByRanking.viewed, label: HERO_LABELS.viewed },
+  ];
+  const heroKits = heroKitEntries.filter(
+    (entry): entry is { kit: KitCardKit; label: string } => entry.kit !== null,
+  );
 
   return (
     <div className="flex flex-col gap-section pb-section">
@@ -49,7 +65,7 @@ export default async function HomePage() {
           {heroKits.length > 0 && (
             <>
               <div className="hidden items-end justify-center md:flex">
-                {heroKits.map((kit, index) => (
+                {heroKits.map(({ kit, label }, index) => (
                   <div
                     key={kit.id}
                     className={
@@ -58,13 +74,13 @@ export default async function HomePage() {
                         : `relative w-36 lg:w-44 ${index === 0 ? "-mr-8" : "-ml-8"}`
                     }
                   >
-                    <HeroKitTile kit={kit} />
+                    <HeroKitTile kit={kit} label={label} />
                   </div>
                 ))}
               </div>
               <div className="grid grid-cols-3 gap-3 md:hidden">
-                {heroKits.map((kit) => (
-                  <HeroKitTile key={kit.id} kit={kit} />
+                {heroKits.map(({ kit, label }) => (
+                  <HeroKitTile key={kit.id} kit={kit} label={label} />
                 ))}
               </div>
             </>
@@ -152,14 +168,20 @@ export default async function HomePage() {
   );
 }
 
-function HeroKitTile({ kit }: { kit: KitCardKit }) {
+function HeroKitTile({ kit, label }: { kit: KitCardKit; label: string }) {
   const owner = kit.club ?? kit.nationalTeam;
   const tag = owner ? archiveTag({ type: kit.type, seasonStart: kit.seasonStart, country: owner.country }) : null;
   const ownerName = owner?.name ?? "";
 
   return (
-    <div className="overflow-hidden rounded-lg border border-line bg-paper-raised">
+    <Link
+      href={`/uniformes/${kit.slug}`}
+      className="block overflow-hidden rounded-lg border border-line bg-paper-raised transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+    >
       <div className="relative flex aspect-[3/4] items-center justify-center bg-paper-muted">
+        <span className="absolute left-1.5 top-1.5 z-10 rounded-full bg-ink/80 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-paper">
+          {label}
+        </span>
         {kit.mainImageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -171,17 +193,19 @@ function HeroKitTile({ kit }: { kit: KitCardKit }) {
           <span className="px-2 text-center text-[10px] text-ink-faint">Sem imagem</span>
         )}
         {kit.mainImageUrl && kit.mainImageSourceType === "DIGITAL_RECREATION" && (
-          <span className="absolute left-1.5 top-1.5 rounded-full bg-paper-raised/90 px-1.5 py-0.5 text-[9px] font-medium text-ink-muted">
+          <span className="absolute right-1.5 top-1.5 rounded-full bg-paper-raised/90 px-1.5 py-0.5 text-[9px] font-medium text-ink-muted">
             Recriação digital
           </span>
         )}
       </div>
-      {tag && (
-        <p className="truncate border-t border-line px-2.5 py-1.5 text-center text-[10px] uppercase tracking-wide text-ink-faint">
-          {tag}
+      <div className="border-t border-line px-2.5 py-1.5 text-center">
+        <p className="truncate text-xs font-medium text-ink">{ownerName}</p>
+        <p className="truncate text-[10px] text-ink-muted">
+          {kitTypeLabel(kit.type)} · {formatSeason(kit.seasonStart, kit.seasonEnd)}
         </p>
-      )}
-    </div>
+        {tag && <p className="mt-0.5 truncate text-[9px] uppercase tracking-wide text-ink-faint">{tag}</p>}
+      </div>
+    </Link>
   );
 }
 

@@ -130,6 +130,8 @@ export default async function AdminKitsPage({
                 <th className="px-4 py-3">Tipo</th>
                 <th className="px-4 py-3">Fabricante</th>
                 <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Views</th>
+                <th className="px-4 py-3">Buscas</th>
                 <th className="px-4 py-3">Atualizado</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -160,6 +162,8 @@ export default async function AdminKitsPage({
                       {KIT_STATUS_LABELS_PT[kit.status]}
                     </span>
                   </td>
+                  <td className="px-4 py-3 text-ink-muted">{kit.viewCount}</td>
+                  <td className="px-4 py-3 text-ink-muted">{kit.searchClickCount}</td>
                   <td className="px-4 py-3 text-xs text-ink-faint">
                     {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(kit.updatedAt)}
                   </td>
