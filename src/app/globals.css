@@ -1,26 +1,187 @@
 @import "tailwindcss";
 
+/*
+ * Arquivo 11 — design tokens.
+ *
+ * A identidade visual final ainda não está definida (ver docs/PROJECT_SPEC.md), então
+ * cores, tipografia, radius, spacing e sombras ficam centralizados aqui. Nenhum
+ * componente deve usar cor hexadecimal direta — sempre pelas classes utilitárias
+ * geradas a partir destas variáveis (bg-paper, text-ink, border-line, etc.).
+ *
+ * Direção: "arquivo/museu esportivo moderno" — fundo neutro tipo papel, tinta quase
+ * preta, um verde profundo como cor de identidade (arquivo/vitrine) e um tom de
+ * latão como destaque secundário (placa de museu). Sem vermelho/azul genérico de
+ * e-commerce, sem gradientes, sombras pesadas ou cantos muito arredondados.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Superfícies */
+  --color-paper: #f7f5f0;
+  --color-paper-raised: #ffffff;
+  --color-paper-muted: #eeeae1;
+
+  /* Texto */
+  --color-ink: #1a1814;
+  --color-ink-muted: #5c574d;
+  --color-ink-faint: #8b8578;
+
+  /* Linhas */
+  --color-line: #ddd7c9;
+  --color-line-strong: #b9b09b;
+
+  /* Identidade */
+  --color-accent: #1f4d3a;
+  --color-accent-strong: #163a2b;
+  --color-accent-soft: #e4ebe6;
+  --color-brass: #a9812f;
+  --color-brass-soft: #f1e8d3;
+
+  /* Feedback (formulários do admin) */
+  --color-danger: #9c3b2e;
+  --color-danger-soft: #f5e6e2;
+  --color-success: #1f4d3a;
+
+  /* Radius — deliberadamente pouco arredondado (estética de placa/catálogo) */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.5rem;
+
+  /* Sombras — quase planas */
+  --shadow-card: 0 1px 2px rgba(26, 24, 20, 0.06);
+  --shadow-card-hover: 0 6px 16px rgba(26, 24, 20, 0.1);
+
+  --space-section: 4rem;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-paper: var(--color-paper);
+  --color-paper-raised: var(--color-paper-raised);
+  --color-paper-muted: var(--color-paper-muted);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-ink-faint: var(--color-ink-faint);
+
+  --color-line: var(--color-line);
+  --color-line-strong: var(--color-line-strong);
+
+  --color-accent: var(--color-accent);
+  --color-accent-strong: var(--color-accent-strong);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-brass: var(--color-brass);
+  --color-brass-soft: var(--color-brass-soft);
+
+  --color-danger: var(--color-danger);
+  --color-danger-soft: var(--color-danger-soft);
+  --color-success: var(--color-success);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+
+  --spacing-section: var(--space-section);
+
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-paper);
+}
+
+/* Campos de formulário reutilizáveis (filtros públicos e painel admin). */
+@layer components {
+  .field-input,
+  .field-select,
+  .field-textarea {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-line);
+    background: var(--color-paper-raised);
+    color: var(--color-ink);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    min-width: 10rem;
+  }
+
+  .field-input:focus,
+  .field-select:focus,
+  .field-textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+
+  .field-textarea {
+    min-width: 100%;
+    resize: vertical;
+  }
+
+  .field-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-ink-muted);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--radius-md);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+  }
+
+  .btn-primary:hover {
+    background: var(--color-accent-strong);
+  }
+
+  .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--radius-md);
+    background: var(--color-danger);
+    color: var(--color-paper);
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-line);
+    color: var(--color-ink);
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: border-color 0.15s ease;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
 }

@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# local SQLite database (dev only — see docs/PROJECT_SPEC.md)
+/dev.db
+/dev.db-journal
+/prisma/dev.db
+/prisma/dev.db-journal
+
+# AI agent skill docs auto-installed by `prisma init` (tool scaffolding, not project code)
+/.agents
+/.claude
+/.windsurf
+skills-lock.json

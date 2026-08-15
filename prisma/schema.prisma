@@ -1,0 +1,188 @@
+// Arquivo 11 — Prisma schema
+//
+// Ambiente: SQLite em desenvolvimento (arquivo local), PostgreSQL é o destino de produção.
+// DECISÃO: nenhum tipo/recurso específico do SQLite é usado aqui (sem `enum` nativo, sem
+// `Json` com defaults dependentes do conector) para que a migração para `provider = "postgresql"`
+// no futuro exija apenas trocar o provider + DATABASE_URL + rodar as migrations novamente.
+//
+// Tipos de uniforme (HOME/AWAY/THIRD/GK/FOURTH/SPECIAL/TRAINING) são modelados como `String`
+// validada em TypeScript (ver src/lib/kit-types.ts), e não como `enum` do Prisma: o conector
+// SQLite não suporta enum nativo, então um enum aqui quebraria o dev local. Ao migrar para
+// Postgres, é possível opcionalmente promover para um enum nativo do banco.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Country {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  continent String
+  flagUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clubs         Club[]
+  nationalTeams NationalTeam[]
+  manufacturers Manufacturer[]
+  competitions  Competition[]
+
+  @@index([continent])
+}
+
+model Club {
+  id           String   @id @default(cuid())
+  name         String
+  fullName     String
+  slug         String   @unique
+  countryId    String
+  city         String?
+  foundedYear  Int?
+  crestUrl     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  kits    Kit[]
+
+  @@index([countryId])
+}
+
+model NationalTeam {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  countryId String
+  crestUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  kits    Kit[]
+
+  @@index([countryId])
+}
+
+model Manufacturer {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  countryId String?
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  country Country? @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  kits    Kit[]
+
+  @@index([countryId])
+}
+
+model Sponsor {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  kits Kit[]
+}
+
+model Competition {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  countryId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  country Country?      @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  kits    KitCompetition[]
+
+  @@index([countryId])
+}
+
+// Um Kit pertence a UM clube OU UMA seleção, nunca os dois (clubId/nationalTeamId
+// são mutuamente exclusivos). SQLite não tem uma forma elegante de expor um CHECK
+// constraint via Prisma, então essa regra é validada na camada de aplicação
+// (ver src/lib/validations/kit.ts). Ao migrar para Postgres, considerar adicionar:
+//   ALTER TABLE "Kit" ADD CONSTRAINT kit_owner_xor
+//     CHECK (num_nonnulls("clubId", "nationalTeamId") = 1);
+model Kit {
+  id             String   @id @default(cuid())
+  clubId         String?
+  nationalTeamId String?
+
+  seasonStart Int
+  seasonEnd   Int
+  type        String // HOME | AWAY | THIRD | GK | FOURTH | SPECIAL | TRAINING — ver src/lib/kit-types.ts
+
+  manufacturerId  String?
+  mainSponsorId   String?
+
+  primaryColor   String?
+  secondaryColor String?
+  description    String?
+
+  mainImageUrl String?
+  sourceUrl    String?
+  photographer String?
+  imageCredit  String?
+  imageLicense String?
+
+  slug String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  club         Club?         @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  nationalTeam NationalTeam? @relation(fields: [nationalTeamId], references: [id], onDelete: Cascade)
+  manufacturer Manufacturer? @relation(fields: [manufacturerId], references: [id], onDelete: SetNull)
+  mainSponsor  Sponsor?      @relation(fields: [mainSponsorId], references: [id], onDelete: SetNull)
+
+  images       KitImage[]
+  competitions KitCompetition[]
+
+  @@index([clubId])
+  @@index([nationalTeamId])
+  @@index([manufacturerId])
+  @@index([seasonStart, seasonEnd])
+  @@index([type])
+}
+
+model KitImage {
+  id           String   @id @default(cuid())
+  kitId        String
+  imageUrl     String
+  type         String // frente | costas | detalhe | outra — texto livre curto por enquanto
+  sourceUrl    String?
+  photographer String?
+  credit       String?
+  license      String?
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  kit Kit @relation(fields: [kitId], references: [id], onDelete: Cascade)
+
+  @@index([kitId])
+}
+
+// Tabela de junção explícita (em vez de m2m implícito do Prisma) para poder
+// evoluir com campos extras (ex.: "uniforme usado na final") sem migração disruptiva.
+model KitCompetition {
+  kitId         String
+  competitionId String
+
+  kit         Kit         @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  @@id([kitId, competitionId])
+  @@index([competitionId])
+}

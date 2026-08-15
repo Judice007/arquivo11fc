@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Arquivo 11
 
-## Getting Started
+Arquivo visual de uniformes de futebol de clubes e seleções brasileiras — "a história do futebol contada através de seus uniformes."
 
-First, run the development server:
+Especificação completa do projeto (escopo, modelo de dados, decisões arquiteturais): [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md).
+
+## Stack
+
+- Next.js 16 (App Router, TypeScript)
+- Prisma ORM 7 — SQLite em desenvolvimento (`@prisma/adapter-better-sqlite3`), PostgreSQL como destino de produção
+- Tailwind CSS v4 (tokens de design em `src/app/globals.css`)
+- Server Components para o site público, Server Actions para o painel `/admin`
+
+## Rodando localmente
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npx prisma migrate dev   # cria/atualiza o banco SQLite local (prisma/dev.db)
+npm run db:seed          # popula clubes, fabricantes e uniformes de demonstração
+npm run dev              # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Painel administrativo: [http://localhost:3000/admin](http://localhost:3000/admin) — CRUD de clubes, seleções, uniformes, fabricantes, patrocinadores, países e competições. Sem autenticação no MVP (decisão registrada em `docs/PROJECT_SPEC.md`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Estrutura
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+prisma/schema.prisma       modelo de dados
+prisma/seed.ts              dados de demonstração
+src/app/(site)/              rotas públicas (tem seu próprio root layout)
+src/app/admin/                painel administrativo (root layout próprio, separado do público)
+src/lib/data/                camada de acesso a dados (queries Prisma)
+src/lib/actions/              Server Actions de mutação, usadas pelo /admin
+src/lib/validations/          schemas Zod dos formulários do /admin
+src/components/                componentes reutilizáveis (público + src/components/admin para o painel)
+```
 
-## Learn More
+## Migrando para PostgreSQL
 
-To learn more about Next.js, take a look at the following resources:
+1. Trocar `provider = "sqlite"` por `provider = "postgresql"` em `prisma/schema.prisma`.
+2. Apontar `DATABASE_URL` para o Postgres de destino.
+3. Trocar o adapter em `src/lib/db.ts` de `PrismaBetterSqlite3` para `PrismaPg` (`@prisma/adapter-pg`).
+4. Rodar `prisma migrate deploy`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Nenhum outro arquivo depende do banco específico — consultas e schema já foram escritos evitando recursos exclusivos do SQLite (ver comentários em `prisma/schema.prisma`).
