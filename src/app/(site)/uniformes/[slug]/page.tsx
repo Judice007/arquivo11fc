@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/page-header";
 import { SectionHeader } from "@/components/section-header";
 import { archiveTag } from "@/lib/archive-tag";
 import { getKitBySlug, getOtherKitsSameSeason, kitOwner } from "@/lib/data/kits";
+import { DIGITAL_RECREATION_NOTE } from "@/lib/image-source-type";
 import { kitTypeLabel } from "@/lib/kit-types";
 import { formatSeason } from "@/lib/season";
 
@@ -61,8 +62,18 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
 
           {hasAcervo ? (
             <div className="grid grid-cols-2 gap-3">
-              <AcervoImage label="Frente" url={kit.mainImageUrl} alt={`${owner.name} — ${kitTypeLabel(kit.type)} ${season} (frente)`} />
-              <AcervoImage label="Costas" url={kit.backImageUrl} alt={`${owner.name} — ${kitTypeLabel(kit.type)} ${season} (costas)`} />
+              <AcervoImage
+                label="Frente"
+                url={kit.mainImageUrl}
+                sourceType={kit.mainImageSourceType}
+                alt={`${owner.name} — ${kitTypeLabel(kit.type)} ${season} (frente)`}
+              />
+              <AcervoImage
+                label="Costas"
+                url={kit.backImageUrl}
+                sourceType={kit.backImageSourceType}
+                alt={`${owner.name} — ${kitTypeLabel(kit.type)} ${season} (costas)`}
+              />
             </div>
           ) : (
             <div className="flex aspect-[4/5] items-center justify-center rounded-md border border-dashed border-line bg-paper-muted">
@@ -168,10 +179,20 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
   );
 }
 
-function AcervoImage({ label, url, alt }: { label: string; url: string | null; alt: string }) {
+function AcervoImage({
+  label,
+  url,
+  sourceType,
+  alt,
+}: {
+  label: string;
+  url: string | null;
+  sourceType: string;
+  alt: string;
+}) {
   return (
     <div>
-      <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-md border border-line bg-paper-muted">
+      <div className="relative flex aspect-[4/5] items-center justify-center overflow-hidden rounded-md border border-line bg-paper-muted">
         {url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={url} alt={alt} className="h-full w-full object-cover" />
@@ -180,6 +201,9 @@ function AcervoImage({ label, url, alt }: { label: string; url: string | null; a
         )}
       </div>
       <p className="mt-1.5 text-center text-xs uppercase tracking-wide text-ink-faint">{label}</p>
+      {url && sourceType === "DIGITAL_RECREATION" && (
+        <p className="text-center text-[11px] text-ink-faint">{DIGITAL_RECREATION_NOTE}</p>
+      )}
     </div>
   );
 }

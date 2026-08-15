@@ -168,7 +168,10 @@ async function main() {
             primaryColor,
             secondaryColor,
             description: `${DEMO_NOTE} Uniforme ${type.toLowerCase()} fictício do ${club.name} para a temporada.`,
+            // Placeholders gerados (placehold.co) são recriações digitais por definição —
+            // não fotografia de acervo nem referência oficial de terceiros.
             mainImageUrl: placeholderImage(imageSeed),
+            mainImageSourceType: "DIGITAL_RECREATION",
             sourceUrl: null,
             photographer: "Acervo Arquivo 11 (demonstração)",
             imageCredit: "Imagem placeholder gerada para demonstração",
@@ -179,8 +182,20 @@ async function main() {
 
         await prisma.kitImage.createMany({
           data: [
-            { kitId: kit.id, imageUrl: placeholderImage(`${imageSeed} frente`), type: "FRENTE", sortOrder: 0 },
-            { kitId: kit.id, imageUrl: placeholderImage(`${imageSeed} costas`), type: "COSTAS", sortOrder: 1 },
+            {
+              kitId: kit.id,
+              imageUrl: placeholderImage(`${imageSeed} frente`),
+              type: "FRENTE",
+              sourceType: "DIGITAL_RECREATION",
+              sortOrder: 0,
+            },
+            {
+              kitId: kit.id,
+              imageUrl: placeholderImage(`${imageSeed} costas`),
+              type: "COSTAS",
+              sourceType: "DIGITAL_RECREATION",
+              sortOrder: 1,
+            },
           ],
         });
 

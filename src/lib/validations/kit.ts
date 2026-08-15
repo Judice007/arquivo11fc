@@ -1,10 +1,12 @@
 import { z } from "zod";
 
 import { KIT_IMAGE_TYPES, KIT_TYPES } from "@/lib/kit-types";
+import { IMAGE_SOURCE_TYPES } from "@/lib/image-source-type";
 import { parseSeasonLabel } from "@/lib/season";
 
 const optionalUrl = z.union([z.literal(""), z.string().trim().url("URL inválida.")]).optional();
 const optionalId = z.string().trim().optional();
+const imageSourceType = z.enum(IMAGE_SOURCE_TYPES);
 
 // O formulário usa um único <select> com optgroups "Clubes"/"Seleções" (sem JS para
 // alternar dois campos) e valores no formato "club:<id>" / "nationalTeam:<id>";
@@ -21,9 +23,13 @@ export const kitSchema = z
     primaryColor: z.string().trim().optional(),
     secondaryColor: z.string().trim().optional(),
     description: z.string().trim().optional(),
-    // Imagens do acervo — só arquivos padronizados fornecidos pelo admin.
+    // Imagens do acervo — só arquivos padronizados fornecidos pelo admin. O tipo de
+    // origem classifica proveniência (foto de acervo, referência oficial ou recriação
+    // digital) — nunca é preenchido automaticamente a partir de uma fonte externa.
     mainImageUrl: optionalUrl,
+    mainImageSourceType: imageSourceType.default("DIGITAL_RECREATION"),
     backImageUrl: optionalUrl,
+    backImageSourceType: imageSourceType.default("DIGITAL_RECREATION"),
     // Fontes e referências — documental, nunca vira imagem do acervo automaticamente.
     sourceUrl: optionalUrl,
     sourceOwner: z.string().trim().optional(),
@@ -60,7 +66,9 @@ export function parseKitForm(formData: FormData) {
     secondaryColor: formData.get("secondaryColor") || undefined,
     description: formData.get("description") || undefined,
     mainImageUrl: formData.get("mainImageUrl") || undefined,
+    mainImageSourceType: formData.get("mainImageSourceType") || undefined,
     backImageUrl: formData.get("backImageUrl") || undefined,
+    backImageSourceType: formData.get("backImageSourceType") || undefined,
     sourceUrl: formData.get("sourceUrl") || undefined,
     sourceOwner: formData.get("sourceOwner") || undefined,
     photographer: formData.get("photographer") || undefined,

@@ -134,6 +134,8 @@ Cadastro de uniforme: escolher clube OU seleção, temporada inicial/final, tipo
 
 Imagens: apenas URLs por enquanto (sem upload binário/base64). Camada preparada para trocar por storage externo (Cloudflare R2, S3, Supabase Storage, etc.) no futuro.
 
+**Proveniência da imagem (2026-08-15):** toda imagem principal/costas do acervo (`Kit.mainImageUrl`/`backImageUrl`, também `KitImage.type`) é classificada por `ImageSourceType` (enum nativo do Postgres): `ARCHIVE_PHOTO` (foto real autorizada), `OFFICIAL_REFERENCE` (material documental de terceiros — nunca vira imagem principal automaticamente) ou `DIGITAL_RECREATION` (recriação digital fornecida pelo admin, permitida como imagem principal, mas sinalizada discretamente na interface pública: "Recriação digital para o Arquivo 11"). As "Fontes e referências" (`sourceUrl`/`sourceOwner`/`imageCredit`/`photographer`/`imageLicense`) ficam sempre registradas separadamente da imagem do acervo, mesmo quando a imagem é uma recriação baseada nelas. Decisão de design: os campos ficaram em `Kit` (não migrados para `KitImage`) para manter a mudança simples — ver comentários em `prisma/schema.prisma`.
+
 ### Segurança do admin
 
 - `/admin` separado da interface pública (root layout próprio, sem link algum a partir das páginas públicas — ver `src/app/admin/layout.tsx`).

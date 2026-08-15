@@ -159,7 +159,7 @@ function HeroKitTile({ kit }: { kit: KitCardKit }) {
 
   return (
     <div className="overflow-hidden rounded-lg border border-line bg-paper-raised">
-      <div className="flex aspect-[3/4] items-center justify-center bg-paper-muted">
+      <div className="relative flex aspect-[3/4] items-center justify-center bg-paper-muted">
         {kit.mainImageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -169,6 +169,11 @@ function HeroKitTile({ kit }: { kit: KitCardKit }) {
           />
         ) : (
           <span className="px-2 text-center text-[10px] text-ink-faint">Sem imagem</span>
+        )}
+        {kit.mainImageUrl && kit.mainImageSourceType === "DIGITAL_RECREATION" && (
+          <span className="absolute left-1.5 top-1.5 rounded-full bg-paper-raised/90 px-1.5 py-0.5 text-[9px] font-medium text-ink-muted">
+            Recriação digital
+          </span>
         )}
       </div>
       {tag && (

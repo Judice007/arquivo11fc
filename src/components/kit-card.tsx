@@ -24,7 +24,7 @@ export function KitCard({ kit }: { kit: KitCardKit }) {
       href={`/uniformes/${kit.slug}`}
       className="group flex flex-col overflow-hidden rounded-lg border border-line bg-paper-raised shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
     >
-      <div className="flex aspect-[4/5] items-center justify-center overflow-hidden bg-paper-muted">
+      <div className="relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-paper-muted">
         {kit.mainImageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -34,6 +34,11 @@ export function KitCard({ kit }: { kit: KitCardKit }) {
           />
         ) : (
           <span className="px-4 text-center text-xs text-ink-faint">Sem imagem</span>
+        )}
+        {kit.mainImageUrl && kit.mainImageSourceType === "DIGITAL_RECREATION" && (
+          <span className="absolute left-2 top-2 rounded-full bg-paper-raised/90 px-2 py-0.5 text-[10px] font-medium text-ink-muted">
+            Recriação digital
+          </span>
         )}
       </div>
       <div className="flex flex-col gap-1 p-4">

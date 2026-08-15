@@ -20,6 +20,21 @@ datasource db {
   provider = "postgresql"
 }
 
+// Classifica a PROVENIÊNCIA de uma imagem (não o ângulo — isso é `type`/`KitImage.type`):
+// - ARCHIVE_PHOTO: foto real do uniforme com autorização/licença/origem adequada.
+// - OFFICIAL_REFERENCE: material documental de terceiros (loja, fabricante, imprensa).
+//   Nunca é escolhida automaticamente como imagem principal do acervo.
+// - DIGITAL_RECREATION: recriação digital para padronização visual do Arquivo 11,
+//   possivelmente baseada em referências. Pode ser imagem principal quando fornecida
+//   explicitamente pelo admin, mas a interface pública sinaliza que é uma recriação.
+// Nativo do Postgres agora (não SQLite) — pode ser enum sem os problemas de portabilidade
+// que levaram KitType a ficar como String.
+enum ImageSourceType {
+  ARCHIVE_PHOTO
+  OFFICIAL_REFERENCE
+  DIGITAL_RECREATION
+}
+
 model Country {
   id        String   @id @default(cuid())
   name      String
@@ -136,8 +151,10 @@ model Kit {
   // isolada, frente/costas). Nunca preenchidas automaticamente a partir de uma
   // fonte externa (ver sourceUrl abaixo). É o que aparece como imagem principal
   // do card e da ficha do uniforme.
-  mainImageUrl String? // frente padronizada
-  backImageUrl String? // costas padronizada
+  mainImageUrl        String? // frente padronizada
+  mainImageSourceType ImageSourceType @default(DIGITAL_RECREATION)
+  backImageUrl        String? // costas padronizada
+  backImageSourceType ImageSourceType @default(DIGITAL_RECREATION)
 
   // Fontes e referências — material documental de terceiros (loja oficial, imprensa,
   // etc.), nunca usado diretamente como imagem do acervo. `imageLicense` funciona
@@ -169,16 +186,17 @@ model Kit {
 }
 
 model KitImage {
-  id           String   @id @default(cuid())
+  id           String          @id @default(cuid())
   kitId        String
   imageUrl     String
   type         String // frente | costas | detalhe | outra — texto livre curto por enquanto
+  sourceType   ImageSourceType @default(DIGITAL_RECREATION)
   sourceUrl    String?
   photographer String?
   credit       String?
   license      String?
-  sortOrder    Int      @default(0)
-  createdAt    DateTime @default(now())
+  sortOrder    Int             @default(0)
+  createdAt    DateTime        @default(now())
 
   kit Kit @relation(fields: [kitId], references: [id], onDelete: Cascade)
 

@@ -1,0 +1,9 @@
+-- CreateEnum
+CREATE TYPE "ImageSourceType" AS ENUM ('ARCHIVE_PHOTO', 'OFFICIAL_REFERENCE', 'DIGITAL_RECREATION');
+
+-- AlterTable
+ALTER TABLE "Kit" ADD COLUMN     "backImageSourceType" "ImageSourceType" NOT NULL DEFAULT 'DIGITAL_RECREATION',
+ADD COLUMN     "mainImageSourceType" "ImageSourceType" NOT NULL DEFAULT 'DIGITAL_RECREATION';
+
+-- AlterTable
+ALTER TABLE "KitImage" ADD COLUMN     "sourceType" "ImageSourceType" NOT NULL DEFAULT 'DIGITAL_RECREATION';

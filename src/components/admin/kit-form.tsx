@@ -8,6 +8,7 @@ import type {
   NationalTeam,
   Sponsor,
 } from "@/generated/prisma/client";
+import { IMAGE_SOURCE_TYPES, IMAGE_SOURCE_TYPE_LABELS_PT } from "@/lib/image-source-type";
 import { KIT_TYPES, kitTypeLabel } from "@/lib/kit-types";
 import { formatSeason } from "@/lib/season";
 
@@ -191,6 +192,21 @@ export function KitForm({
             />
           </label>
           <label className="field-label">
+            Tipo de origem (frente)
+            <select
+              name="mainImageSourceType"
+              defaultValue={kit?.mainImageSourceType ?? "DIGITAL_RECREATION"}
+              className="field-select"
+            >
+              {IMAGE_SOURCE_TYPES.map((sourceType) => (
+                <option key={sourceType} value={sourceType}>
+                  {IMAGE_SOURCE_TYPE_LABELS_PT[sourceType]}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="field-label">
             Costas padronizada
             <input
               type="url"
@@ -199,7 +215,26 @@ export function KitForm({
               className="field-input"
             />
           </label>
+          <label className="field-label">
+            Tipo de origem (costas)
+            <select
+              name="backImageSourceType"
+              defaultValue={kit?.backImageSourceType ?? "DIGITAL_RECREATION"}
+              className="field-select"
+            >
+              {IMAGE_SOURCE_TYPES.map((sourceType) => (
+                <option key={sourceType} value={sourceType}>
+                  {IMAGE_SOURCE_TYPE_LABELS_PT[sourceType]}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
+        <p className="-mt-2 text-xs text-ink-muted">
+          &quot;Fotografia de acervo&quot; exige autorização/licença. &quot;Recriação digital&quot; aparece
+          na ficha pública com um aviso discreto. &quot;Referência oficial&quot; não deveria ser usada aqui —
+          esses arquivos vão em Fontes e referências.
+        </p>
 
         <label className="field-label">
           Galeria adicional (opcional) — uma imagem por linha, no formato TIPO|URL
