@@ -1,16 +1,15 @@
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 import { PrismaClient } from "@/generated/prisma/client";
 
-// Prisma 7 requires an explicit driver adapter. `better-sqlite3` is used only
-// in development; production points DATABASE_URL at Postgres and swaps this
-// file's adapter for `@prisma/adapter-pg` (`new PrismaPg({ connectionString })`).
-// No other file should need to change when that happens — this module is the
-// only place that knows which database is behind Prisma.
+// Prisma 7 requires an explicit driver adapter. This module is the only place
+// that knows which database is behind Prisma — swap the adapter here if the
+// project ever moves off Postgres.
 function createPrismaClient() {
-  const adapter = new PrismaBetterSqlite3({
-    url: process.env.DATABASE_URL ?? "file:./dev.db",
-  });
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL não está configurada. Veja .env.example.");
+  }
+  const adapter = new PrismaPg(process.env.DATABASE_URL);
   return new PrismaClient({ adapter });
 }
 

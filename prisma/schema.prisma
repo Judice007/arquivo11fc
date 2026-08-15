@@ -1,14 +1,15 @@
 // Arquivo 11 — Prisma schema
 //
-// Ambiente: SQLite em desenvolvimento (arquivo local), PostgreSQL é o destino de produção.
-// DECISÃO: nenhum tipo/recurso específico do SQLite é usado aqui (sem `enum` nativo, sem
-// `Json` com defaults dependentes do conector) para que a migração para `provider = "postgresql"`
-// no futuro exija apenas trocar o provider + DATABASE_URL + rodar as migrations novamente.
+// PostgreSQL (produção e desenvolvimento). O projeto rodou em SQLite durante o
+// desenvolvimento inicial do MVP; migrado para Postgres ao publicar no Vercel
+// (SQLite/better-sqlite3 não funciona em ambiente serverless). Nenhum tipo/recurso
+// específico de um único conector é usado aqui (sem `Json` com defaults dependentes
+// do conector), então o schema seria portável de volta a outro banco SQL se preciso.
 //
-// Tipos de uniforme (HOME/AWAY/THIRD/GK/FOURTH/SPECIAL/TRAINING) são modelados como `String`
-// validada em TypeScript (ver src/lib/kit-types.ts), e não como `enum` do Prisma: o conector
-// SQLite não suporta enum nativo, então um enum aqui quebraria o dev local. Ao migrar para
-// Postgres, é possível opcionalmente promover para um enum nativo do banco.
+// Tipos de uniforme (HOME/AWAY/THIRD/GK/FOURTH/SPECIAL/TRAINING) continuam modelados
+// como `String` validada em TypeScript (ver src/lib/kit-types.ts) em vez de `enum`
+// nativo do Prisma — mantém paridade com o período em que o dev local usava SQLite,
+// que não suporta enum nativo. Pode ser promovido para enum do Postgres no futuro.
 
 generator client {
   provider = "prisma-client"
@@ -16,7 +17,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model Country {

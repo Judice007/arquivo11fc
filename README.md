@@ -7,7 +7,7 @@ Especificação completa do projeto (escopo, modelo de dados, decisões arquitet
 ## Stack
 
 - Next.js 16 (App Router, TypeScript)
-- Prisma ORM 7 — SQLite em desenvolvimento (`@prisma/adapter-better-sqlite3`), PostgreSQL como destino de produção
+- Prisma ORM 7 — PostgreSQL (via `@prisma/adapter-pg`), tanto em desenvolvimento quanto em produção
 - Tailwind CSS v4 (tokens de design em `src/app/globals.css`)
 - Server Components para o site público, Server Actions para o painel `/admin`
 
@@ -15,12 +15,21 @@ Especificação completa do projeto (escopo, modelo de dados, decisões arquitet
 
 ```bash
 npm install
-npx prisma migrate dev   # cria/atualiza o banco SQLite local (prisma/dev.db)
-npm run db:seed          # popula clubes, fabricantes e uniformes de demonstração
-npm run dev              # http://localhost:3000
+cp .env.example .env      # preencha DATABASE_URL com seu Postgres
+npx prisma migrate dev    # cria/atualiza as tabelas
+npm run db:seed           # popula clubes, fabricantes e uniformes de demonstração
+npm run dev               # http://localhost:3000
 ```
 
+`npm install` já roda `prisma generate` automaticamente (script `postinstall`) — necessário porque `src/generated/prisma` não é versionado.
+
 Painel administrativo: [http://localhost:3000/admin](http://localhost:3000/admin) — CRUD de clubes, seleções, uniformes, fabricantes, patrocinadores, países e competições. Sem autenticação no MVP (decisão registrada em `docs/PROJECT_SPEC.md`).
+
+## Deploy (Vercel)
+
+1. Criar um banco Postgres (Vercel Postgres/Neon, Supabase, etc.) e configurar `DATABASE_URL` nas Environment Variables do projeto no Vercel.
+2. Rodar as migrations contra esse banco (`npx prisma migrate deploy`, localmente com a `DATABASE_URL` de produção, ou via um passo de CI).
+3. Deploy normal — o `postinstall` cuida de gerar o Prisma Client no build do Vercel.
 
 ## Estrutura
 
@@ -34,12 +43,3 @@ src/lib/actions/              Server Actions de mutação, usadas pelo /admin
 src/lib/validations/          schemas Zod dos formulários do /admin
 src/components/                componentes reutilizáveis (público + src/components/admin para o painel)
 ```
-
-## Migrando para PostgreSQL
-
-1. Trocar `provider = "sqlite"` por `provider = "postgresql"` em `prisma/schema.prisma`.
-2. Apontar `DATABASE_URL` para o Postgres de destino.
-3. Trocar o adapter em `src/lib/db.ts` de `PrismaBetterSqlite3` para `PrismaPg` (`@prisma/adapter-pg`).
-4. Rodar `prisma migrate deploy`.
-
-Nenhum outro arquivo depende do banco específico — consultas e schema já foram escritos evitando recursos exclusivos do SQLite (ver comentários em `prisma/schema.prisma`).

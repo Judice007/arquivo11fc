@@ -16,7 +16,7 @@
 
 - Next.js 15, App Router, TypeScript estrito
 - Prisma ORM
-- **SQLite apenas em desenvolvimento local.** Schema, relações, queries e migrations pensados desde o início para compatibilidade com PostgreSQL (destino de produção). `DATABASE_URL` via variável de ambiente. Evitar recursos específicos de SQLite que dificultem a migração.
+- **PostgreSQL** (dev e produção). O MVP começou em SQLite local; migrado para Postgres em 2026-08-15 ao publicar no Vercel — SQLite/`better-sqlite3` não roda em ambiente serverless (sem disco persistente, módulo nativo). `DATABASE_URL` via variável de ambiente, adapter em `src/lib/db.ts`.
 - Tailwind CSS, com tokens de design centralizados (cores, tipografia, radius, spacing, sombras) — nada de cor hardcoded espalhada pelos componentes.
 - Server Components para páginas públicas; Server Actions para o painel administrativo (sem API REST separada).
 - Projeto único cobrindo frontend público + painel admin + banco.
