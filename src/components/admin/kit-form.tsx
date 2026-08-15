@@ -171,51 +171,93 @@ export function KitForm({
         </div>
       </fieldset>
 
-      <fieldset className="flex flex-col gap-4 rounded-md border border-line bg-paper-raised p-4">
-        <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-ink-faint">
-          Imagens e créditos
+      <fieldset className="flex flex-col gap-4 rounded-md border border-accent bg-accent-soft p-4">
+        <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-accent">
+          Imagens do acervo
         </legend>
+        <p className="-mt-2 text-xs text-ink-muted">
+          Só arquivos padronizados (camisa isolada) que você mesmo forneceu. Nunca preencha estes campos
+          com uma URL de terceiros — imagens externas vão em &quot;Fontes e referências&quot;, abaixo.
+        </p>
+
+        <div className="grid grid-cols-2 gap-4">
+          <label className="field-label">
+            Frente padronizada
+            <input
+              type="url"
+              name="mainImageUrl"
+              defaultValue={kit?.mainImageUrl ?? ""}
+              className="field-input"
+            />
+          </label>
+          <label className="field-label">
+            Costas padronizada
+            <input
+              type="url"
+              name="backImageUrl"
+              defaultValue={kit?.backImageUrl ?? ""}
+              className="field-input"
+            />
+          </label>
+        </div>
 
         <label className="field-label">
-          URL da imagem principal
-          <input
-            type="url"
-            name="mainImageUrl"
-            defaultValue={kit?.mainImageUrl ?? ""}
-            className="field-input"
-          />
-        </label>
-
-        <label className="field-label">
-          Galeria (opcional) — uma imagem por linha, no formato TIPO|URL
+          Galeria adicional (opcional) — uma imagem por linha, no formato TIPO|URL
           <textarea
             name="galleryText"
             defaultValue={galleryText}
             rows={4}
-            placeholder={"FRENTE|https://...\nCOSTAS|https://..."}
+            placeholder={"DETALHE|https://...\nOUTRA|https://..."}
             className="field-textarea font-mono text-xs"
           />
           <span className="font-normal normal-case text-ink-faint">
-            Tipos aceitos: FRENTE, COSTAS, DETALHE, OUTRA.
+            Tipos aceitos: FRENTE, COSTAS, DETALHE, OUTRA — para ângulos extras do acervo, não para fotos
+            de terceiros.
           </span>
         </label>
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-4 rounded-md border border-line bg-paper-raised p-4">
+        <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+          Fontes e referências
+        </legend>
+        <p className="-mt-2 text-xs text-ink-muted">
+          Material documental de terceiros (loja oficial, imprensa). Fica registrado como referência —
+          nunca vira a imagem principal do acervo automaticamente.
+        </p>
 
         <div className="grid grid-cols-2 gap-4">
           <label className="field-label">
-            Fonte da imagem (URL, opcional)
+            URL oficial
             <input type="url" name="sourceUrl" defaultValue={kit?.sourceUrl ?? ""} className="field-input" />
           </label>
           <label className="field-label">
-            Fotógrafo (opcional)
-            <input type="text" name="photographer" defaultValue={kit?.photographer ?? ""} className="field-input" />
+            Titular / origem
+            <input
+              type="text"
+              name="sourceOwner"
+              defaultValue={kit?.sourceOwner ?? ""}
+              placeholder="Loja Oficial do Flamengo / adidas"
+              className="field-input"
+            />
           </label>
           <label className="field-label">
-            Crédito da imagem (opcional)
+            Crédito
             <input type="text" name="imageCredit" defaultValue={kit?.imageCredit ?? ""} className="field-input" />
           </label>
           <label className="field-label">
-            Licença (opcional)
-            <input type="text" name="imageLicense" defaultValue={kit?.imageLicense ?? ""} className="field-input" />
+            Fotógrafo (se conhecido)
+            <input type="text" name="photographer" defaultValue={kit?.photographer ?? ""} className="field-input" />
+          </label>
+          <label className="field-label col-span-2">
+            Observação de uso
+            <input
+              type="text"
+              name="imageLicense"
+              defaultValue={kit?.imageLicense ?? ""}
+              placeholder="Ex.: uso editorial/referência — direitos de terceiros"
+              className="field-input"
+            />
           </label>
         </div>
       </fieldset>

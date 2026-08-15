@@ -21,8 +21,12 @@ export const kitSchema = z
     primaryColor: z.string().trim().optional(),
     secondaryColor: z.string().trim().optional(),
     description: z.string().trim().optional(),
+    // Imagens do acervo — só arquivos padronizados fornecidos pelo admin.
     mainImageUrl: optionalUrl,
+    backImageUrl: optionalUrl,
+    // Fontes e referências — documental, nunca vira imagem do acervo automaticamente.
     sourceUrl: optionalUrl,
+    sourceOwner: z.string().trim().optional(),
     photographer: z.string().trim().optional(),
     imageCredit: z.string().trim().optional(),
     imageLicense: z.string().trim().optional(),
@@ -56,7 +60,9 @@ export function parseKitForm(formData: FormData) {
     secondaryColor: formData.get("secondaryColor") || undefined,
     description: formData.get("description") || undefined,
     mainImageUrl: formData.get("mainImageUrl") || undefined,
+    backImageUrl: formData.get("backImageUrl") || undefined,
     sourceUrl: formData.get("sourceUrl") || undefined,
+    sourceOwner: formData.get("sourceOwner") || undefined,
     photographer: formData.get("photographer") || undefined,
     imageCredit: formData.get("imageCredit") || undefined,
     imageLicense: formData.get("imageLicense") || undefined,

@@ -132,11 +132,21 @@ model Kit {
   secondaryColor String?
   description    String?
 
-  mainImageUrl String?
-  sourceUrl    String?
-  photographer String?
-  imageCredit  String?
-  imageLicense String?
+  // Imagens do acervo — SÓ arquivos padronizados fornecidos pelo admin (camisa
+  // isolada, frente/costas). Nunca preenchidas automaticamente a partir de uma
+  // fonte externa (ver sourceUrl abaixo). É o que aparece como imagem principal
+  // do card e da ficha do uniforme.
+  mainImageUrl String? // frente padronizada
+  backImageUrl String? // costas padronizada
+
+  // Fontes e referências — material documental de terceiros (loja oficial, imprensa,
+  // etc.), nunca usado diretamente como imagem do acervo. `imageLicense` funciona
+  // como a "observação de uso" (ex.: "uso editorial/referência, direitos de terceiros").
+  sourceUrl    String? // URL oficial
+  sourceOwner  String? // titular/origem (ex.: "Loja Oficial do Flamengo / adidas")
+  photographer String? // fotógrafo, quando conhecido
+  imageCredit  String? // crédito
+  imageLicense String? // observação de uso
 
   slug String @unique
 

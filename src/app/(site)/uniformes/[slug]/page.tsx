@@ -38,6 +38,9 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
   const ownerCountry = kit.club?.country ?? kit.nationalTeam?.country ?? null;
   const tag = ownerCountry ? archiveTag({ type: kit.type, seasonStart: kit.seasonStart, country: ownerCountry }) : null;
 
+  const hasAcervo = Boolean(kit.mainImageUrl || kit.backImageUrl);
+  const hasReference = Boolean(kit.sourceUrl || kit.sourceOwner || kit.imageCredit || kit.photographer || kit.imageLicense);
+
   return (
     <div>
       <PageHeader
@@ -52,18 +55,28 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
 
       <div className="mx-auto grid max-w-[1440px] gap-10 px-4 py-8 md:grid-cols-[3fr_2fr] md:px-8">
         <div>
-          <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-md border border-line bg-paper-muted">
-            {kit.mainImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={kit.mainImageUrl} alt={`${owner.name} — ${kitTypeLabel(kit.type)} ${season}`} className="h-full w-full object-cover" />
-            ) : (
-              <span className="text-sm text-ink-faint">Sem imagem</span>
-            )}
-          </div>
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+            Imagens do acervo
+          </h2>
+
+          {hasAcervo ? (
+            <div className="grid grid-cols-2 gap-3">
+              <AcervoImage label="Frente" url={kit.mainImageUrl} alt={`${owner.name} — ${kitTypeLabel(kit.type)} ${season} (frente)`} />
+              <AcervoImage label="Costas" url={kit.backImageUrl} alt={`${owner.name} — ${kitTypeLabel(kit.type)} ${season} (costas)`} />
+            </div>
+          ) : (
+            <div className="flex aspect-[4/5] items-center justify-center rounded-md border border-dashed border-line bg-paper-muted">
+              <span className="max-w-[16rem] px-4 text-center text-sm text-ink-faint">
+                Ainda sem imagem padronizada do acervo para este uniforme.
+              </span>
+            </div>
+          )}
 
           {kit.images.length > 0 && (
             <div className="mt-4">
-              <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">Galeria</h2>
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                Ângulos adicionais
+              </h3>
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
                 {kit.images.map((image) => (
                   <div
@@ -76,20 +89,6 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
                 ))}
               </div>
             </div>
-          )}
-
-          {(kit.photographer || kit.imageCredit || kit.imageLicense || kit.sourceUrl) && (
-            <p className="mt-3 text-xs text-ink-faint">
-              {[kit.photographer, kit.imageCredit, kit.imageLicense].filter(Boolean).join(" · ")}
-              {kit.sourceUrl && (
-                <>
-                  {" "}
-                  <a href={kit.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">
-                    Fonte
-                  </a>
-                </>
-              )}
-            </p>
           )}
         </div>
 
@@ -121,6 +120,30 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
               <p className="text-sm leading-relaxed text-ink-muted">{kit.description}</p>
             </div>
           )}
+
+          {hasReference && (
+            <div className="rounded-md border border-line bg-paper-muted p-4">
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                Fontes e referências
+              </h2>
+              <dl className="flex flex-col gap-2 text-sm">
+                {kit.sourceOwner && <Info label="Titular/origem" value={kit.sourceOwner} />}
+                {kit.imageCredit && <Info label="Crédito" value={kit.imageCredit} />}
+                {kit.photographer && <Info label="Fotógrafo" value={kit.photographer} />}
+                {kit.imageLicense && <Info label="Observação de uso" value={kit.imageLicense} />}
+              </dl>
+              {kit.sourceUrl && (
+                <a
+                  href={kit.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-block text-sm font-medium text-accent underline hover:text-accent-strong"
+                >
+                  Ver URL oficial →
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -141,6 +164,22 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
         atual do MVP; uma função equivalente pode ser adicionada em src/lib/data/kits.ts
         quando esse recurso for priorizado.
       */}
+    </div>
+  );
+}
+
+function AcervoImage({ label, url, alt }: { label: string; url: string | null; alt: string }) {
+  return (
+    <div>
+      <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-md border border-line bg-paper-muted">
+        {url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt={alt} className="h-full w-full object-cover" />
+        ) : (
+          <span className="px-2 text-center text-xs text-ink-faint">Pendente</span>
+        )}
+      </div>
+      <p className="mt-1.5 text-center text-xs uppercase tracking-wide text-ink-faint">{label}</p>
     </div>
   );
 }
