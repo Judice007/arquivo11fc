@@ -126,13 +126,16 @@ async function main() {
 
   console.log("Seed: uniformes de demonstração...");
 
-  // Temporadas de exemplo por clube: uma antiga (formato de ano único) e duas
-  // recentes (formato ano/ano+1), o suficiente para validar agrupamento por
-  // década, listagem de temporadas e os dois formatos de exibição.
+  // Temporadas de exemplo por clube, uma por década, o suficiente para validar
+  // o agrupamento por década e a listagem de temporadas. Clubes brasileiros usam
+  // temporada de ano único (ver docs/PROJECT_SPEC.md) — o formato "2025/26" para
+  // ligas que atravessam o ano continua suportado pelo sistema (formatSeason /
+  // parseSeasonSlug), só não é exercitado neste seed porque nenhum clube/seleção
+  // aqui usa esse formato de temporada.
   const DEMO_SEASONS: { seasonStart: number; seasonEnd: number; types: KitType[] }[] = [
     { seasonStart: 2005, seasonEnd: 2005, types: ["HOME", "AWAY"] },
     { seasonStart: 2015, seasonEnd: 2015, types: ["HOME", "AWAY", "THIRD"] },
-    { seasonStart: 2025, seasonEnd: 2026, types: ["HOME", "AWAY", "THIRD", "GK"] },
+    { seasonStart: 2025, seasonEnd: 2025, types: ["HOME", "AWAY", "THIRD", "GK"] },
   ];
 
   let kitCounter = 0;

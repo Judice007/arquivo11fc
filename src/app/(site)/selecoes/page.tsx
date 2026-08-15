@@ -51,12 +51,7 @@ export default async function NationalTeamsPage() {
         ) : (
           <EmptyState
             title="Nenhuma seleção cadastrada ainda"
-            description="O catálogo de seleções começa vazio no MVP — cadastre a primeira pelo painel administrativo."
-            action={
-              <Link href="/admin/selecoes" className="btn-secondary">
-                Ir para o admin de seleções
-              </Link>
-            }
+            description="O catálogo de seleções começa vazio no MVP."
           />
         )}
       </div>

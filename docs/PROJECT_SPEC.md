@@ -136,9 +136,10 @@ Imagens: apenas URLs por enquanto (sem upload binário/base64). Camada preparada
 
 ### Segurança do admin
 
-- `/admin` separado da interface pública.
+- `/admin` separado da interface pública (root layout próprio, sem link algum a partir das páginas públicas — ver `src/app/admin/layout.tsx`).
 - Server Actions administrativas centralizadas, não expostas de forma insegura.
 - **Decisão do cliente (2026-08-14): sem proteção de acesso no MVP** (sem contas de usuário ainda). Estrutura deve ficar preparada para adicionar autenticação depois, sem exigir refatoração grande.
+- **⚠️ Pendência antes de produção pública com dados reais (registrada em 2026-08-15):** o site já está publicado (`arquivo11fc.vercel.app`) sem autenticação em `/admin` — qualquer pessoa com a URL consegue criar, editar e excluir conteúdo agora. Aceitável enquanto o conteúdo for de demonstração; autenticação é obrigatória antes de tratar os dados como reais/públicos de verdade.
 
 ## SEO
 

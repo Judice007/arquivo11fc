@@ -12,10 +12,7 @@ const COLUMNS = [
   },
   {
     title: "Sobre",
-    links: [
-      { href: "/explorar", label: "Explorar o arquivo" },
-      { href: "/admin", label: "Painel administrativo" },
-    ],
+    links: [{ href: "/explorar", label: "Explorar o arquivo" }],
   },
 ];
 

@@ -44,8 +44,7 @@ export default async function KitPage({ params }: PageProps<"/uniformes/[slug]">
           { label: owner.name, href: ownerHref },
           { label: `${kitTypeLabel(kit.type)} ${season}` },
         ]}
-        eyebrow={`${owner.name} · ${season}`}
-        title={kitTypeLabel(kit.type)}
+        title={`${owner.name} — ${kitTypeLabel(kit.type)} ${season}`}
       />
 
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-8 md:grid-cols-[3fr_2fr] md:px-6">
